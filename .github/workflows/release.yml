@@ -29,7 +29,7 @@ jobs:
         dotnet-version: '6.x'          
         
     - name: Build AzureFunctions.Extensions.Middleware
-      run: dotnet build --configuration debug
+      run: dotnet build --configuration Release -p:Version=${{ github.event.release.tag_name }}
       
     - name: Create NuGet package
       run: dotnet pack -c Release /p:Version=${{ github.event.release.tag_name }} /p:PackageReleaseNotes=" See https://github.com/Divakar-Kumar/AzureFunctions.Extensions.Middleware/releases/tag/${{ github.event.release.tag_name}}"
