@@ -1,0 +1,53 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
+	<LangVersion>10.0</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Company>CloudJas</Company>
+    <Authors>Divakar Kumar</Authors>
+    <Description>AzureFunctions.Extensions.Middleware is a library that allows developers to implement middleware pattern and handle cross-cutting concerns of the applications</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>middleware.png</PackageIcon>
+    <Copyright>Copyright (c) CloudJas 2022</Copyright>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>serverless;azurefunctions;middleware;net6;netcoreapp3.1;net5</PackageTags>
+    <PackageProjectUrl>https://github.com/Cloud-Jas/AzureFunctions.Extensions.Middleware</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Cloud-Jas/AzureFunctions.Extensions.Middleware</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <NeutralLanguage>en</NeutralLanguage>
+  </PropertyGroup>
+
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
+	</ItemGroup>
+
+	<ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
+	</ItemGroup>
+	
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
+	</ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\icons\middleware.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>

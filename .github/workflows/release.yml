@@ -1,0 +1,40 @@
+name: Release to NuGet
+
+on:
+  release:
+    types: [published]
+jobs:
+  build:
+  
+    runs-on: ubuntu-latest
+    
+    steps:
+    
+    - name: Checkout code
+      uses: actions/checkout@v2
+      
+    - name: Setup .NET SDK 3.1 LTS
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.1.x'
+        
+    - name: Setup .NET SDK 5 
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '5.x'
+        
+    - name: Setup .NET SDK 6 LTS
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '6.x'
+        
+    - name: Build AzureFunctions.Extensions.Middleware
+      run: dotnet build --configuration Release
+      
+    - name: Create NuGet package
+      run: dotnet pack -c Release /p:Version=${{ github.event.release.tag_name }} /p:PackageReleaseNotes=" See https://github.com/Divakar-Kumar/AzureFunctions.Extensions.Middleware/releases/tag/${{ github.event.release.tag_name}}"
+      working-directory: ./src/AzureFunctions.Extensions.Middleware
+    
+    - name: Publish NuGet package
+      run: dotnet nuget push **/*.nupkg --api-key ${{ secrets.NUGET_SECRET }} --source https://api.nuget.org/v3/index.json --no-symbols true
+             

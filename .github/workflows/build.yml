@@ -1,0 +1,40 @@
+name: .NET
+
+on:
+  push:
+    branches: 
+    - master
+    - feature/*    
+  pull_request:
+    branches: [ master ]
+    
+jobs:
+  build:
+  
+    runs-on: ubuntu-latest
+
+    steps:
+    
+    - name: Checkout code
+      uses: actions/checkout@v2
+    
+    - name: Setup .NET SDK 3.1 LTS
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.1.x'
+        
+    - name: Setup .NET SDK 5 
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '5.x'
+        
+    - name: Setup .NET SDK 6 LTS
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '6.x'
+        
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    - name: Build library
+      run: dotnet build --configuration Release
