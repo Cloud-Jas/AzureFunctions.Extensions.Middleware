@@ -25,7 +25,7 @@ namespace AzureFunctions.Extensions.Middleware.Abstractions
         /// Executes pipeline
         /// </summary>        
         /// <param name="middleware">ServerlessMiddleware</param>
-        /// <returns>ActionResult task</returns>
-        Task<IActionResult> ExecuteAsync(ServerlessMiddleware middleware);
+        /// <returns>dynamic task</returns>
+        Task<dynamic> ExecuteAsync(ServerlessMiddleware middleware);
     }
 }

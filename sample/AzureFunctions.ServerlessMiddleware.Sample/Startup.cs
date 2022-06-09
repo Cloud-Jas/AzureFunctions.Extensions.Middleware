@@ -20,7 +20,7 @@ namespace AzureFunctions.Middleware.Sample
             {
                 var funcBuilder = new MiddlewareBuilder(serviceProvider.GetRequiredService<IHttpContextAccessor>());
                 funcBuilder.Use(new ExceptionHandlingMiddleware(new LoggerFactory().CreateLogger(nameof(ExceptionHandlingMiddleware))));
-                funcBuilder.UseWhen(ctx => ctx.Request.Path.StartsWithSegments("/api/Authorize"),
+                funcBuilder.UseWhen(ctx => ctx!=null && ctx.Request.Path.StartsWithSegments("/api/Authorize"),
                     new AuthorizationMiddleware(new LoggerFactory().CreateLogger(nameof(AuthorizationMiddleware))));
                 return funcBuilder;
             });
