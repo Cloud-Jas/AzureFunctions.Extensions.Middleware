@@ -93,9 +93,9 @@ We can now add IMiddlewareBuilder as a dependency to our HTTP trigger function c
 
 # 4. Define Custom middlewares
 
-Override both InvokeAsync method with HttpContext and ExecutionContext , Implement the one that is suitable for your Azure functions trigger.
+If HTTP trigger is used try to implement the InvokeAsync(HttpContext) and for non-http triggers implement InvokeAsync(ExecutionContext), (If both http and non-http triggers are deployed in same
+azure function try to implement both methods) 
 
-If HTTP trigger is used try to implement the InvokeAsync(HttpContext) and for non-http triggers implement InvokeAsync(ExecutionContext)
 
 ```cs
 

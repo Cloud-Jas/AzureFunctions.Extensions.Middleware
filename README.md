@@ -141,11 +141,11 @@ We can now add IMiddlewareBuilder as a dependency to our HTTP trigger function c
         }
 ```
 
+
 # 4. Define Custom middlewares
 
-Override both InvokeAsync method with HttpContext and ExecutionContext , Implement the one that is suitable for your Azure functions trigger.
-
-If HTTP trigger is used try to implement the InvokeAsync(HttpContext) and for non-http triggers implement InvokeAsync(ExecutionContext)
+If HTTP trigger is used try to implement the InvokeAsync(HttpContext) and for non-http triggers implement InvokeAsync(ExecutionContext), (If both http and non-http triggers are deployed in same
+azure function try to implement both methods) 
 
 ```cs
 
@@ -240,7 +240,7 @@ For non-http triggers use TaskMiddleware
 ```
 
 
-Based on the type of middleware(TaskMiddleware or FunctionsMiddleware) , respective InvokeAsync method will called with ExecutionContext or HttpContext
+<b>Based on the type of middleware(TaskMiddleware or FunctionsMiddleware) , respective InvokeAsync method will called with ExecutionContext or HttpContext</b>
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
