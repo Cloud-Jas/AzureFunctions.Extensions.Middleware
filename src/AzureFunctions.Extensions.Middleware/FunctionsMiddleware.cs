@@ -33,5 +33,10 @@ namespace AzureFunctions.Extensions.Middleware
 
             await result.ExecuteResultAsync(new ActionContext(context, new RouteData(), new ActionDescriptor()));
         }
-    }
+
+      public override Task InvokeAsync(Microsoft.Azure.WebJobs.ExecutionContext context)
+      {
+         throw new NotImplementedException("Please raise a issue , if we need support for execution context in HTTP triggers");
+      }
+   }
 }

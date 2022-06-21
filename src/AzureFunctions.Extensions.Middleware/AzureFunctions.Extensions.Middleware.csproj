@@ -52,4 +52,8 @@
 		</None>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.33" />
+	</ItemGroup>
+
 </Project>

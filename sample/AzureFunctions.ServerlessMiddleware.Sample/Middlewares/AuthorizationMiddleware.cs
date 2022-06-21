@@ -1,6 +1,7 @@
 ﻿using AzureFunctions.Extensions.Middleware.Abstractions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
@@ -29,5 +30,10 @@ namespace AzureFunctions.Middleware.Sample.Middlewares
 
             await this.Next.InvokeAsync(context);
         }
-    }
+
+      public override Task InvokeAsync(ExecutionContext context)
+      {
+         throw new NotImplementedException();
+      }
+   }
 }

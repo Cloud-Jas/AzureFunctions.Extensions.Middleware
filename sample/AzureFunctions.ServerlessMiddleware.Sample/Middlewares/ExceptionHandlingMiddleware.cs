@@ -1,6 +1,6 @@
 ﻿using AzureFunctions.Extensions.Middleware.Abstractions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
@@ -34,5 +34,21 @@ namespace AzureFunctions.Middleware.Sample.Middlewares
 
             }
         }
-    }
+
+      public override async Task InvokeAsync(ExecutionContext context)
+      {
+         try
+         {
+            _logger.LogInformation("Request triggered");
+
+            await this.Next.InvokeAsync(context);
+
+            _logger.LogInformation("Request processed without any exceptions");
+         }
+         catch (Exception ex)
+         {
+            _logger.LogError(ex.Message);           
+         }
+      }
+   }
 }

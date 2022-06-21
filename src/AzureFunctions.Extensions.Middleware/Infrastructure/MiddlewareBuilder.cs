@@ -15,9 +15,12 @@ namespace AzureFunctions.Extensions.Middleware.Infrastructure
 
       private readonly IHttpContextAccessor _httpContextAccessor;
 
-      public MiddlewareBuilder(IHttpContextAccessor httpContextAccessor)
+      private IExecutionContext _executionContext;
+
+      public MiddlewareBuilder(IHttpContextAccessor httpContextAccessor, IExecutionContext executionContext)
       {
-         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+         _httpContextAccessor = httpContextAccessor;
+         _executionContext = executionContext;
       }
       public MiddlewareBuilder(List<ServerlessMiddleware> middlewarePipeline)
       {
@@ -36,7 +39,7 @@ namespace AzureFunctions.Extensions.Middleware.Infrastructure
 
          var context = this._httpContextAccessor.HttpContext;
 
-         if (_middlewarePipeline.Any())
+         if (context != null && _middlewarePipeline.Any())
          {
             await _middlewarePipeline.First().InvokeAsync(context);
 
@@ -45,10 +48,18 @@ namespace AzureFunctions.Extensions.Middleware.Infrastructure
 
             if (context.Response != null)
                return new MiddlewareResponse(context);
+
+         }
+         else if (_executionContext != null && _middlewarePipeline.Any())
+         {
+            await _middlewarePipeline.First().InvokeAsync(_executionContext as Microsoft.Azure.WebJobs.ExecutionContext);
+
+            return true;
+
          }
 
          throw new Exception("No middleware configured");
-      }     
+      }
       /// <inheritdoc>/>
       public IMiddlewareBuilder Use(ServerlessMiddleware middleware)
       {

@@ -34,11 +34,9 @@ namespace AzureFunctions.Middleware.Sample
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req)
         {
 
-            return await _middlewareBuilder.ExecuteAsync(new FunctionsMiddleware(async (httpContext) =>
+           return await _middlewareBuilder.ExecuteAsync(new FunctionsMiddleware(async (httpContext) =>
             {
-                _logger.LogInformation("C# HTTP trigger default function processed a request.");
-
-                throw new Exception("custom exception");
+                _logger.LogInformation("C# HTTP trigger default function processed a request.");                
 
                 string name = httpContext.Request.Query["name"];                
 

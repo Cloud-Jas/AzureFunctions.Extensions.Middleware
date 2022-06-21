@@ -10,20 +10,21 @@ using AzureFunctions.Middleware.Sample.Middlewares;
 
 namespace AzureFunctions.Middleware.Sample
 {
-    internal class Startup : FunctionsStartup
-    {
-        public override void Configure(IFunctionsHostBuilder builder)
-        {
-            builder.Services.AddHttpContextAccessor();
-            builder.Services.AddLogging();            
-            builder.Services.AddTransient<IMiddlewareBuilder, MiddlewareBuilder>((serviceProvider) =>
-            {
-                var funcBuilder = new MiddlewareBuilder(serviceProvider.GetRequiredService<IHttpContextAccessor>());
-                funcBuilder.Use(new ExceptionHandlingMiddleware(new LoggerFactory().CreateLogger(nameof(ExceptionHandlingMiddleware))));
-                funcBuilder.UseWhen(ctx => ctx!=null && ctx.Request.Path.StartsWithSegments("/api/Authorize"),
-                    new AuthorizationMiddleware(new LoggerFactory().CreateLogger(nameof(AuthorizationMiddleware))));
-                return funcBuilder;
-            });
-        }
-    }
+   internal class Startup : FunctionsStartup
+   {
+      public override void Configure(IFunctionsHostBuilder builder)
+      {
+         builder.Services.AddHttpContextAccessor();
+         builder.Services.AddSingleton<IExecutionContext, FunctionExecutionContext>();
+         builder.Services.AddLogging();
+         builder.Services.AddTransient<IMiddlewareBuilder, MiddlewareBuilder>((serviceProvider) =>
+         {
+            var funcBuilder = new MiddlewareBuilder(serviceProvider.GetRequiredService<IHttpContextAccessor>(),serviceProvider.GetRequiredService<IExecutionContext>());
+            funcBuilder.Use(new ExceptionHandlingMiddleware(new LoggerFactory().CreateLogger(nameof(ExceptionHandlingMiddleware))));
+            funcBuilder.UseWhen(ctx => ctx != null && ctx.Request.Path.StartsWithSegments("/api/Authorize"),
+                   new AuthorizationMiddleware(new LoggerFactory().CreateLogger(nameof(AuthorizationMiddleware))));
+            return funcBuilder;
+         });
+      }
+   }
 }
