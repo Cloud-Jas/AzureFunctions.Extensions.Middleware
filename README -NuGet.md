@@ -2,6 +2,7 @@
 
  * Able to add multiple custom middlewares to the pipeline
  * Able to access HTTP context inside the custom middleware
+ * Able to inject middlewares in all the triggers available
  * Able to bypass middlewares and return response
  * Handle Crosscutting concerns of the application
 	* Logging
@@ -86,6 +87,8 @@ We can now add IMiddlewareBuilder as a dependency to our HTTP trigger function c
 
 Now we need to bind last middleware for our HttpTrigger method , to do that wrap our existing code inside Functionsmiddleware block "_middlewareBuilder.ExecuteAsync(new FunctionsMiddleware(async (httpContext) =>{HTTP trigger code})"
 
+For returning IActionResult use FunctionsMiddleware
+
 ```cs
  
 return await _middlewareBuilder.ExecuteAsync(new FunctionsMiddleware(async (httpContext) =>
@@ -104,6 +107,22 @@ return await _middlewareBuilder.ExecuteAsync(new FunctionsMiddleware(async (http
 
                 return new OkObjectResult(responseMessage);
             }));
+
+```
+
+For non-http triggers use TaskMiddleware
+
+```cs
+
+[FunctionName("TimerTrigger")]
+       public async Task Run([TimerTrigger("*/10 * * * * *")] TimerInfo myTimer, ILogger log)
+      {
+         await _middlewareBuilder.ExecuteAsync(new TaskMiddleware(async (httpContext) =>
+         {
+            log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
+            await Task.FromResult("test");
+         }));
+      }
 
 ```
 
