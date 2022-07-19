@@ -81,7 +81,7 @@
 ### Getting Started
 
 
-#1. HTTP Triggers
+# 1. HTTP Triggers
 
 ## 1.1 Add HttpContextAccessor in Startup.cs
 
@@ -235,7 +235,7 @@ All custom middleware of Http triggers should inherit from ServerlessMiddleware 
 ```
 
 
-#2. Non-HTTP Triggers
+# 2. Non-HTTP Triggers
 
 
 ## 2.1 Add custom middlewares to the pipeline in Startup.cs
