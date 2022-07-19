@@ -46,6 +46,16 @@
   </ol>
 </details>
 
+## Updates 3.0
+
+* Separated concerns of Http and non-http triggers
+* bug-fixes in accessing executionContext
+* cleaner approach to access data for non-http triggers 
+
+> Note:  Breaking change of class name changes 
+<br>
+> FunctionsMiddleware => HttpMiddleware & TaskMiddleware => NonHttpMiddleware
+
 ## Features
 
  * Able to add multiple custom middlewares to the pipeline
@@ -254,7 +264,7 @@ One or more custom middlewares can be added to the execution pipeline as below f
 
 ```
 
-### 1.2.1 Use() 
+### 2.1.1 Use() 
 
  - Use() middleware takes custom middleware as parameter and will be applied to all the endpoints 
  
@@ -265,7 +275,7 @@ One or more custom middlewares can be added to the execution pipeline as below f
  > However you could use ExecutionContext in each custom middleware to perform similar logic :). Refer the examples given below
 
 
-## 1.3. Pass ITaskMiddlewareBuilder in Non-Http trigger class
+## 2.2. Pass ITaskMiddlewareBuilder in Non-Http trigger class
 
 Pass ITaskMiddlewareBuilder dependency to the constructor of Non-Http trigger class
 
@@ -281,7 +291,7 @@ Pass ITaskMiddlewareBuilder dependency to the constructor of Non-Http trigger cl
       }
 ```
 
-## 1.4. Modify non-http triggers methods
+## 2.3. Modify non-http triggers methods
 
 All of our custom middlewares are added in the Startup.cs file and now we need to bind last middleware for our HttpTrigger method , use "_middlewareBuilder.ExecuteAsync(new NonHttpMiddleware(async (httpContext) =>{HTTP trigger code},executionContext,data)" to wrap the code.
 
@@ -316,7 +326,7 @@ public class TimerTrigger
 
 In the above example we have passed both executionContext and timerinfo data as parameters to NonHttpMiddleware. This will be made available to all the custom middleware that are registered in startup.cs
 
-## 1.5 How to define Custom middlewares for non-http triggers?
+## 2.4 How to define Custom middlewares for non-http triggers?
 
 All custom middleware of Non-Http triggers should inherit from TaskMiddleware and override InvokeAsync method . You will be able to access both ExecutionContext and Data
 
