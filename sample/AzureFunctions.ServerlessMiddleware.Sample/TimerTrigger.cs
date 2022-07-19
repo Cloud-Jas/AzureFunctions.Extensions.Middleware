@@ -21,11 +21,12 @@ namespace AzureFunctions.Middleware.Sample
       [FunctionName("TimerTrigger")]
       public async Task Run([TimerTrigger("*/10 * * * * *")] TimerInfo myTimer, ILogger log,ExecutionContext context)
       {
-         /*await _middlewareBuilder.ExecuteAsync(new NonHttpMiddleware(async () =>
+
+         await _middlewareBuilder.ExecuteAsync(new NonHttpMiddleware(async () =>
             {
                log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
                await Task.FromResult("test");
-            },context,myTimer));*/
+            },context,myTimer));
       }
    }
 }
