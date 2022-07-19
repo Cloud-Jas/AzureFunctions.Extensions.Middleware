@@ -80,18 +80,20 @@
 
 ### Getting Started
 
-# 1. Add HttpContextAccessor and ExecutionContext to service collection
 
-Inorder to access/modify HttpContext within custom middleware we need to add HttpContextAccessor in Startup.cs file and for accessing ExecutionContext we need to add FunctionExecutionContext concrete class in Startup.cs
+# HTTP Triggers
+
+## 1.1 Add HttpContextAccessor 
+
+Inorder to access/modify HttpContext within custom middleware we need to add HttpContextAccessor in Startup.cs file
 
 ```cs
 
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddSingleton<IExecutionContext, FunctionExecutionContext>();
+builder.Services.AddHttpContextAccessor()
 
 ```
 
-# 2. Add custom middlewares to the pipeline
+## 1.2. Add custom middlewares to the pipeline
 
 One or more custom middlewares can be added to the execution pipeline using MiddlewareBuilder. 
 
@@ -101,7 +103,7 @@ One or more custom middlewares can be added to the execution pipeline using Midd
 builder.Services.AddTransient<IMiddlewareBuilder, MiddlewareBuilder>((serviceProvider) =>
             {
 				// added httpcontextaccessor and executioncontext to middlewarebuilder
-                var funcBuilder = new MiddlewareBuilder(serviceProvider.GetRequiredService<IHttpContextAccessor>(),serviceProvider.GetRequiredService<IExecutionContext>());
+                var funcBuilder = new MiddlewareBuilder(serviceProvider.GetRequiredService<IHttpContextAccessor>());
 				
 				//add custom middlewares to the execution pipeline
                 funcBuilder.Use(new ExceptionHandlingMiddleware(new LoggerFactory().CreateLogger(nameof(ExceptionHandlingMiddleware))));
@@ -115,17 +117,17 @@ builder.Services.AddTransient<IMiddlewareBuilder, MiddlewareBuilder>((servicePro
 
 ```
 
-## 2.1 Use() 
+### 1.2.1 Use() 
 
  - Use() middleware takes custom middleware as parameter and will be applied to all the endpoints 
 
-## 2.2 UseWhen()
+### 1.2.2 UseWhen()
 
  - UseWhen() takes Func<HttpContext, bool> and custom middleware as parameters. If the condition is satisfied then middleware will be added to the pipeline 
  of exectuion.
 
 
-# 3. IMiddlewareBuilder dependency
+## 1.3. IMiddlewareBuilder dependency
 
 We can now add IMiddlewareBuilder as a dependency to our HTTP trigger function class.
 
@@ -142,7 +144,7 @@ We can now add IMiddlewareBuilder as a dependency to our HTTP trigger function c
 ```
 
 
-# 4. Define Custom middlewares
+## 1.4 Define Custom middlewares
 
 If HTTP trigger is used try to implement the InvokeAsync(HttpContext) and for non-http triggers implement InvokeAsync(ExecutionContext), (If both http and non-http triggers are deployed in same
 azure function try to implement both methods) 
@@ -175,28 +177,12 @@ public class ExceptionHandlingMiddleware : ServerlessMiddleware
                 await context.Response.WriteAsync("Http Trigger request failed, Please try again");
 
             }
-        }
-
-      public override async Task InvokeAsync(ExecutionContext context)
-      {
-         try
-         {
-            _logger.LogInformation("Request triggered");
-
-            await this.Next.InvokeAsync(context);
-
-            _logger.LogInformation("Request processed without any exceptions");
-         }
-         catch (Exception ex)
-         {
-            _logger.LogError(ex.Message);           
-         }
-      }
+        }      
    }
 
 ```
 
-# 5. Execute pipeline
+## 1.5. Execute pipeline
 
 Now we need to bind last middleware for our HttpTrigger method , to do that wrap our existing code inside Functionsmiddleware block "_middlewareBuilder.ExecuteAsync(new FunctionsMiddleware(async (httpContext) =>{HTTP trigger code})"
 
@@ -223,21 +209,131 @@ return await _middlewareBuilder.ExecuteAsync(new FunctionsMiddleware(async (http
 
 ```
 
-For non-http triggers use TaskMiddleware
+
+# Non-HTTP Triggers
+
+## 2.1 Add HttpContextAccessor 
+
+Inorder to access/modify HttpContext within custom middleware we need to add HttpContextAccessor in Startup.cs file
 
 ```cs
 
-[FunctionName("TimerTrigger")]
-       public async Task Run([TimerTrigger("*/10 * * * * *")] TimerInfo myTimer, ILogger log)
-      {
-         await _middlewareBuilder.ExecuteAsync(new TaskMiddleware(async (httpContext) =>
-         {
-            log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
-            await Task.FromResult("test");
-         }));
-      }
+builder.Services.AddHttpContextAccessor()
 
 ```
+
+## 2.2 Add custom middlewares to the pipeline
+
+One or more custom middlewares can be added to the execution pipeline using MiddlewareBuilder. 
+
+
+```cs
+
+builder.Services.AddTransient<IMiddlewareBuilder, MiddlewareBuilder>((serviceProvider) =>
+            {
+				// added httpcontextaccessor and executioncontext to middlewarebuilder
+                var funcBuilder = new MiddlewareBuilder(serviceProvider.GetRequiredService<IHttpContextAccessor>());
+				
+				//add custom middlewares to the execution pipeline
+                funcBuilder.Use(new ExceptionHandlingMiddleware(new LoggerFactory().CreateLogger(nameof(ExceptionHandlingMiddleware))));
+				
+				// add custom middleware based on condition (works in HTTP trigger)
+                funcBuilder.UseWhen(ctx => ctx.Request.Path.StartsWithSegments("/api/Authorize"),
+                    new AuthorizationMiddleware(new LoggerFactory().CreateLogger(nameof(AuthorizationMiddleware))));
+                
+				return funcBuilder;
+            });
+
+```
+
+### 2.2.1 Use() 
+
+ - Use() middleware takes custom middleware as parameter and will be applied to all the endpoints 
+
+
+## 2.3 IMiddlewareBuilder dependency
+
+We can now add IMiddlewareBuilder as a dependency to our HTTP trigger function class.
+
+```cs 
+
+        private readonly ILogger<Function1> _logger;
+        private readonly IMiddlewareBuilder _middlewareBuilder;
+
+        public Function1(ILogger<Function1> log, IMiddlewareBuilder middlewareBuilder)
+        {
+            _logger = log;            
+            _middlewareBuilder = middlewareBuilder;
+        }
+```
+
+
+## 2.4 Define Custom middlewares
+
+If HTTP trigger is used try to implement the InvokeAsync(HttpContext) and for non-http triggers implement InvokeAsync(ExecutionContext), (If both http and non-http triggers are deployed in same
+azure function try to implement both methods) 
+
+```cs
+
+public class ExceptionHandlingMiddleware : ServerlessMiddleware
+    {
+        private readonly ILogger _logger;
+        public ExceptionHandlingMiddleware(ILogger logger)
+        {
+            _logger = logger;
+        }
+        public override async Task InvokeAsync(HttpContext context)
+        {
+            try
+            {
+                _logger.LogInformation("Request triggered");
+
+                await this.Next.InvokeAsync(context);
+
+                _logger.LogInformation("Request processed without any exceptions");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+
+                context.Response.StatusCode = 400;
+                
+                await context.Response.WriteAsync("Http Trigger request failed, Please try again");
+
+            }
+        }      
+   }
+
+```
+
+## 2.5. Execute pipeline
+
+Now we need to bind last middleware for our HttpTrigger method , to do that wrap our existing code inside Functionsmiddleware block "_middlewareBuilder.ExecuteAsync(new FunctionsMiddleware(async (httpContext) =>{HTTP trigger code})"
+
+For returning IActionResult use FunctionsMiddleware
+
+```cs
+ 
+return await _middlewareBuilder.ExecuteAsync(new FunctionsMiddleware(async (httpContext) =>
+            {
+                _logger.LogInformation("C# HTTP trigger function processed a request.");
+
+                string name = httpContext.Request.Query["name"];                
+
+                string requestBody = await new StreamReader(httpContext.Request.Body).ReadToEndAsync();
+                dynamic data = JsonConvert.DeserializeObject(requestBody);
+                name = name ?? data?.name;
+
+                string responseMessage = string.IsNullOrEmpty(name)
+                    ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
+                    : $"Hello, {name}. This HTTP triggered function executed successfully.";
+
+                return new OkObjectResult(responseMessage);
+            }));
+
+```
+
+
 
 
 <b>Based on the type of middleware(TaskMiddleware or FunctionsMiddleware) , respective InvokeAsync method will called with ExecutionContext or HttpContext</b>
