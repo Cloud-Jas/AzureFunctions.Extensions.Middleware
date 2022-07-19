@@ -83,7 +83,7 @@
 
 # HTTP Triggers
 
-## 1.1 Add HttpContextAccessor 
+## 1.1 Add HttpContextAccessor in Startup.cs
 
 Inorder to access/modify HttpContext within custom middleware we need to add HttpContextAccessor in Startup.cs file
 
@@ -93,10 +93,9 @@ builder.Services.AddHttpContextAccessor()
 
 ```
 
-## 1.2. Add custom middlewares to the pipeline
+## 1.2. Add custom middlewares to the pipeline in Startup.cs
 
-One or more custom middlewares can be added to the execution pipeline using MiddlewareBuilder. 
-
+One or more custom middlewares can be added to the execution pipeline as below.
 
 ```cs
 
@@ -127,25 +126,25 @@ builder.Services.AddTransient<IMiddlewareBuilder, MiddlewareBuilder>((servicePro
  of exectuion.
 
 
-## 1.3. IMiddlewareBuilder dependency
+## 1.3. Pass IMiddlewareBuilder in Http trigger class
 
-We can now add IMiddlewareBuilder as a dependency to our HTTP trigger function class.
+Pass IMiddlewareBuilder dependency to the constructor of Http trigger class
 
 ```cs 
 
-        private readonly ILogger<Function1> _logger;
+         private readonly ILogger<FxDefault> _logger;
         private readonly IMiddlewareBuilder _middlewareBuilder;
 
-        public Function1(ILogger<Function1> log, IMiddlewareBuilder middlewareBuilder)
+        public FxDefault(ILogger<FxDefault> log, IMiddlewareBuilder middlewareBuilder)
         {
-            _logger = log;            
+            _logger = log;
             _middlewareBuilder = middlewareBuilder;
         }
 ```
 
-## 1.4. Modify http triggers
+## 1.4. Modify http triggers methods
 
-Now we need to bind last middleware for our HttpTrigger method , use "_middlewareBuilder.ExecuteAsync(new HttpMiddleware(async (httpContext) =>{HTTP trigger code},executionContext)" to wrap the code.
+All of our custom middlewares are added in the Startup.cs file and now we need to bind last middleware for our HttpTrigger method , use "_middlewareBuilder.ExecuteAsync(new HttpMiddleware(async (httpContext) =>{HTTP trigger code},executionContext)" to wrap the code.
 
 > NOTE:  pass optional parameter {executionContext} to use it in the custom middlewares , refer 1.5 to see how to make use of executionContext
 
@@ -194,15 +193,13 @@ public class FxDefault
 
 ```
 
+## 1.5 How to define Custom middlewares?
 
-## 1.5 Define Custom middlewares
-
-If HTTP trigger is used try to implement the InvokeAsync(HttpContext) and for non-http triggers implement InvokeAsync(ExecutionContext), (If both http and non-http triggers are deployed in same
-azure function try to implement both methods) 
+All custom middleware of Http triggers should inherit from ServerlessMiddleware and override InvokeAsync method . You will be able to access both HttpContext and ExecutionContext
 
 > Note
-> You have access to execution context in all the custom middlewares 
-> To access it use {this.ExecutionContext} , refer ex below
+> You have access to execution context in all the custom middlewares , only if you pass the executionContext as 2nd parameter in the HttpMiddleware wrapper (refer 1.4)
+> To access it use {this.ExecutionContext} , refer below
 
 ```cs
 
