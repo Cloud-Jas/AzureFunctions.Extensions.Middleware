@@ -143,8 +143,59 @@ We can now add IMiddlewareBuilder as a dependency to our HTTP trigger function c
         }
 ```
 
+## 1.4. Modify http triggers
 
-## 1.4 Define Custom middlewares
+Now we need to bind last middleware for our HttpTrigger method , use "_middlewareBuilder.ExecuteAsync(new HttpMiddleware(async (httpContext) =>{HTTP trigger code},executionContext)" to wrap the code.
+
+> NOTE:  pass optional parameter {executionContext} to use it in the custom middlewares , refer 1.5 to see how to make use of executionContext
+
+For returning IActionResult use HttpMiddleware
+
+```cs
+ 
+public class FxDefault
+    {
+        private readonly ILogger<FxDefault> _logger;
+        private readonly IMiddlewareBuilder _middlewareBuilder;
+
+        public FxDefault(ILogger<FxDefault> log, IMiddlewareBuilder middlewareBuilder)
+        {
+            _logger = log;
+            _middlewareBuilder = middlewareBuilder;
+        }
+
+        [FunctionName("Function1")]
+        [OpenApiOperation(operationId: "Run", tags: new[] { "name" })]
+        [OpenApiParameter(name: "name", In = ParameterLocation.Query, Required = true, Type = typeof(string), Description = "The **Name** parameter")]
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(string), Description = "The OK response")]
+        public async Task<IActionResult> Run(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,ExecutionContext executionContext)
+        {
+
+           return await _middlewareBuilder.ExecuteAsync(new HttpMiddleware(async (httpContext) =>
+            {
+                _logger.LogInformation("C# HTTP trigger default function processed a request.");                
+
+                string name = httpContext.Request.Query["name"];                
+
+                string requestBody = await new StreamReader(httpContext.Request.Body).ReadToEndAsync();
+                dynamic data = JsonConvert.DeserializeObject(requestBody);
+                name = name ?? data?.name;
+
+                string responseMessage = string.IsNullOrEmpty(name)
+                    ? "This HTTP triggered default function executed successfully. Pass a name in the query string or in the request body for a personalized response."
+                    : $"Hello, {name}. This HTTP triggered default function executed successfully.";
+
+                return new OkObjectResult(responseMessage);
+            },executionContext));            
+            
+        }
+    }
+
+```
+
+
+## 1.5 Define Custom middlewares
 
 If HTTP trigger is used try to implement the InvokeAsync(HttpContext) and for non-http triggers implement InvokeAsync(ExecutionContext), (If both http and non-http triggers are deployed in same
 azure function try to implement both methods) 
@@ -183,33 +234,6 @@ azure function try to implement both methods)
             }
         }
    }
-
-```
-
-## 1.5. Execute pipeline
-
-Now we need to bind last middleware for our HttpTrigger method , to do that wrap our existing code inside Functionsmiddleware block "_middlewareBuilder.ExecuteAsync(new FunctionsMiddleware(async (httpContext) =>{HTTP trigger code})"
-
-For returning IActionResult use FunctionsMiddleware
-
-```cs
- 
-return await _middlewareBuilder.ExecuteAsync(new FunctionsMiddleware(async (httpContext) =>
-            {
-                _logger.LogInformation("C# HTTP trigger function processed a request.");
-
-                string name = httpContext.Request.Query["name"];                
-
-                string requestBody = await new StreamReader(httpContext.Request.Body).ReadToEndAsync();
-                dynamic data = JsonConvert.DeserializeObject(requestBody);
-                name = name ?? data?.name;
-
-                string responseMessage = string.IsNullOrEmpty(name)
-                    ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
-                    : $"Hello, {name}. This HTTP triggered function executed successfully.";
-
-                return new OkObjectResult(responseMessage);
-            }));
 
 ```
 
@@ -312,13 +336,13 @@ public class ExceptionHandlingMiddleware : ServerlessMiddleware
 
 ## 2.5. Execute pipeline
 
-Now we need to bind last middleware for our HttpTrigger method , to do that wrap our existing code inside Functionsmiddleware block "_middlewareBuilder.ExecuteAsync(new FunctionsMiddleware(async (httpContext) =>{HTTP trigger code})"
+Now we need to bind last middleware for our HttpTrigger method , to do that wrap our existing code inside HttpMiddleware block "_middlewareBuilder.ExecuteAsync(new HttpMiddleware(async (httpContext) =>{HTTP trigger code})"
 
-For returning IActionResult use FunctionsMiddleware
+For returning IActionResult use HttpMiddleware
 
 ```cs
  
-return await _middlewareBuilder.ExecuteAsync(new FunctionsMiddleware(async (httpContext) =>
+return await _middlewareBuilder.ExecuteAsync(new HttpMiddleware(async (httpContext) =>
             {
                 _logger.LogInformation("C# HTTP trigger function processed a request.");
 
@@ -340,7 +364,7 @@ return await _middlewareBuilder.ExecuteAsync(new FunctionsMiddleware(async (http
 
 
 
-<b>Based on the type of middleware(TaskMiddleware or FunctionsMiddleware) , respective InvokeAsync method will called with ExecutionContext or HttpContext</b>
+<b>Based on the type of middleware(TaskMiddleware or HttpMiddleware) , respective InvokeAsync method will called with ExecutionContext or HttpContext</b>
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
