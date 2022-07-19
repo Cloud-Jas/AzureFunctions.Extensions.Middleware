@@ -53,7 +53,9 @@
 * cleaner approach to access data for non-http triggers 
 
 > Note:  Breaking change of class name changes 
+
 <br>
+
 > FunctionsMiddleware => HttpMiddleware & TaskMiddleware => NonHttpMiddleware
 
 ## Features
