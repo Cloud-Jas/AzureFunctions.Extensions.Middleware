@@ -149,9 +149,13 @@ We can now add IMiddlewareBuilder as a dependency to our HTTP trigger function c
 If HTTP trigger is used try to implement the InvokeAsync(HttpContext) and for non-http triggers implement InvokeAsync(ExecutionContext), (If both http and non-http triggers are deployed in same
 azure function try to implement both methods) 
 
+> Note
+> You have access to execution context in all the custom middlewares 
+> To access it use {this.ExecutionContext} , refer ex below
+
 ```cs
 
-public class ExceptionHandlingMiddleware : ServerlessMiddleware
+    public class ExceptionHandlingMiddleware : ServerlessMiddleware
     {
         private readonly ILogger _logger;
         public ExceptionHandlingMiddleware(ILogger logger)
@@ -162,11 +166,11 @@ public class ExceptionHandlingMiddleware : ServerlessMiddleware
         {
             try
             {
-                _logger.LogInformation("Request triggered");
+                _logger.LogInformation($"{this.ExecutionContext.FunctionName} Request triggered");
 
                 await this.Next.InvokeAsync(context);
 
-                _logger.LogInformation("Request processed without any exceptions");
+                _logger.LogInformation($"{this.ExecutionContext.FunctionName} Request processed without any exceptions");
             }
             catch (Exception ex)
             {
@@ -174,10 +178,10 @@ public class ExceptionHandlingMiddleware : ServerlessMiddleware
 
                 context.Response.StatusCode = 400;
                 
-                await context.Response.WriteAsync("Http Trigger request failed, Please try again");
+                await context.Response.WriteAsync($"{this.ExecutionContext.FunctionName} request failed, Please try again");
 
             }
-        }      
+        }
    }
 
 ```
