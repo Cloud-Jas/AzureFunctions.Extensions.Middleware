@@ -18,11 +18,11 @@ namespace AzureFunctions.Middleware.Sample.Middlewares
         {
             try
             {
-                _logger.LogInformation("Request triggered");
+                _logger.LogInformation($"{this.ExecutionContext.FunctionName} Request triggered");
 
                 await this.Next.InvokeAsync(context);
 
-                _logger.LogInformation("Request processed without any exceptions");
+                _logger.LogInformation($"{this.ExecutionContext.FunctionName} Request processed without any exceptions");
             }
             catch (Exception ex)
             {
@@ -30,25 +30,9 @@ namespace AzureFunctions.Middleware.Sample.Middlewares
 
                 context.Response.StatusCode = 400;
                 
-                await context.Response.WriteAsync("Http Trigger request failed, Please try again");
+                await context.Response.WriteAsync($"{this.ExecutionContext.FunctionName} request failed, Please try again");
 
             }
         }
-
-      public override async Task InvokeAsync(ExecutionContext context)
-      {
-         try
-         {
-            _logger.LogInformation("Request triggered");
-
-            await this.Next.InvokeAsync(context);
-
-            _logger.LogInformation("Request processed without any exceptions");
-         }
-         catch (Exception ex)
-         {
-            _logger.LogError(ex.Message);           
-         }
-      }
    }
 }

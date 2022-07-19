@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace AzureFunctions.Middleware.Sample.Middlewares
 {
     public class AuthorizationMiddleware : ServerlessMiddleware
-    {
+   {
         private readonly ILogger _logger;
         public AuthorizationMiddleware(ILogger logger)
         {
@@ -17,7 +17,7 @@ namespace AzureFunctions.Middleware.Sample.Middlewares
         }
         public override async Task InvokeAsync(HttpContext context)
         {
-            _logger.LogInformation("Authorization middleware triggered");
+            _logger.LogInformation($"{this.ExecutionContext.FunctionName} Authorization middleware triggered");
 
             if (!context.Request.Headers.ContainsKey("Authorization"))
             {
@@ -30,10 +30,5 @@ namespace AzureFunctions.Middleware.Sample.Middlewares
 
             await this.Next.InvokeAsync(context);
         }
-
-      public override Task InvokeAsync(ExecutionContext context)
-      {
-         throw new NotImplementedException();
-      }
    }
 }

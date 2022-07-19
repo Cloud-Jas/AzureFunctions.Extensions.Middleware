@@ -31,10 +31,10 @@ namespace AzureFunctions.Middleware.Sample
         [OpenApiParameter(name: "name", In = ParameterLocation.Query, Required = true, Type = typeof(string), Description = "The **Name** parameter")]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(string), Description = "The OK response")]
         public async Task<IActionResult> Authorize(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "Authorize")] HttpRequest req)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "Authorize")] HttpRequest req,ExecutionContext executionContext)
         {
 
-            return await _middlewareBuilder.ExecuteAsync(new FunctionsMiddleware(async (httpContext) =>
+            return await _middlewareBuilder.ExecuteAsync(new HttpMiddleware(async (httpContext) =>
             {
                 _logger.LogInformation("C# HTTP trigger authorize function processed a request.");
 
@@ -49,7 +49,7 @@ namespace AzureFunctions.Middleware.Sample
                     : $"Hello, {name}. This HTTP triggered authorize function executed successfully.";
 
                 return new OkObjectResult(responseMessage);
-            }));            
+            }, executionContext));            
             
         }        
     }

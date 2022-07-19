@@ -14,15 +14,21 @@ namespace AzureFunctions.Middleware.Sample
    {
       public override void Configure(IFunctionsHostBuilder builder)
       {
-         builder.Services.AddHttpContextAccessor();
-         builder.Services.AddSingleton<IExecutionContext, FunctionExecutionContext>();
+         builder.Services.AddHttpContextAccessor();         
          builder.Services.AddLogging();
          builder.Services.AddTransient<IMiddlewareBuilder, MiddlewareBuilder>((serviceProvider) =>
          {
-            var funcBuilder = new MiddlewareBuilder(serviceProvider.GetRequiredService<IHttpContextAccessor>(),serviceProvider.GetRequiredService<IExecutionContext>());
+            var funcBuilder = new MiddlewareBuilder(serviceProvider.GetRequiredService<IHttpContextAccessor>());
             funcBuilder.Use(new ExceptionHandlingMiddleware(new LoggerFactory().CreateLogger(nameof(ExceptionHandlingMiddleware))));
             funcBuilder.UseWhen(ctx => ctx != null && ctx.Request.Path.StartsWithSegments("/api/Authorize"),
                    new AuthorizationMiddleware(new LoggerFactory().CreateLogger(nameof(AuthorizationMiddleware))));
+            return funcBuilder;
+         });
+         builder.Services.AddTransient<ITaskMiddlewareBuilder, TaskMiddlewareBuilder>((serviceProvider) =>
+         {
+            var funcBuilder = new TaskMiddlewareBuilder();
+            funcBuilder.Use(new TaskExceptionHandlingMiddleware(new LoggerFactory().CreateLogger(nameof(ExceptionHandlingMiddleware))));
+            funcBuilder.Use( new TimerDataAccessMiddleware(new LoggerFactory().CreateLogger(nameof(TimerDataAccessMiddleware))));
             return funcBuilder;
          });
       }
