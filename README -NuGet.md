@@ -6,13 +6,13 @@
 
 > Note:  Breaking change of class name changes 
 <br>
-> FunctionsMiddleware => HttpMiddleware 
+* FunctionsMiddleware => HttpMiddleware 
 <br>
-> TaskMiddleware => NonHttpMiddleware 
+* TaskMiddleware => NonHttpMiddleware 
 <br>
-> IMiddlewareBuilder => IHttpMiddlewareBuilder
+* IMiddlewareBuilder => IHttpMiddlewareBuilder
 <br>
-> ServerlessMiddleware => HttpMiddlewareBase
+* ServerlessMiddleware => HttpMiddlewareBase
 
 
 ## Features
