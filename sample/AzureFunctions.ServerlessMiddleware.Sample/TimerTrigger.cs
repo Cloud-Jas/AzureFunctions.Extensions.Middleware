@@ -11,9 +11,9 @@ namespace AzureFunctions.Middleware.Sample
    public class TimerTrigger
    {
       private readonly ILogger<TimerTrigger> _logger;
-      private readonly ITaskMiddlewareBuilder _middlewareBuilder;
+      private readonly INonHttpMiddlewareBuilder _middlewareBuilder;
 
-      public TimerTrigger(ILogger<TimerTrigger> log, ITaskMiddlewareBuilder middlewareBuilder)
+      public TimerTrigger(ILogger<TimerTrigger> log, INonHttpMiddlewareBuilder middlewareBuilder)
       {
          _logger = log;
          _middlewareBuilder = middlewareBuilder;
@@ -24,8 +24,8 @@ namespace AzureFunctions.Middleware.Sample
 
          await _middlewareBuilder.ExecuteAsync(new NonHttpMiddleware(async () =>
             {
-               log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
-               await Task.FromResult("test");
+               _logger.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
+               await Task.FromResult(true);
             },context,myTimer));
       }
    }

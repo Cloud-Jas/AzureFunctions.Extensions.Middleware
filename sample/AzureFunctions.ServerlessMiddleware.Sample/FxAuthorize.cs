@@ -18,9 +18,9 @@ namespace AzureFunctions.Middleware.Sample
     public class FxAuthorize
     {
         private readonly ILogger<FxAuthorize> _logger;
-        private readonly IMiddlewareBuilder _middlewareBuilder;
+        private readonly IHttpMiddlewareBuilder _middlewareBuilder;
 
-        public FxAuthorize(ILogger<FxAuthorize> log, IMiddlewareBuilder middlewareBuilder)
+        public FxAuthorize(ILogger<FxAuthorize> log, IHttpMiddlewareBuilder middlewareBuilder)
         {
             _logger = log;
             _middlewareBuilder = middlewareBuilder;
@@ -34,9 +34,9 @@ namespace AzureFunctions.Middleware.Sample
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "Authorize")] HttpRequest req,ExecutionContext executionContext)
         {
 
-            return await _middlewareBuilder.ExecuteAsync(new HttpMiddleware(async (httpContext) =>
+            return await _middlewareBuilder.ExecuteAsync(new Extensions.Middleware.HttpMiddleware(async (httpContext) =>
             {
-                _logger.LogInformation("C# HTTP trigger authorize function processed a request.");
+               _logger.LogInformation("C# HTTP trigger authorize function processed a request.");
 
                 string name = httpContext.Request.Query["name"];                
 

@@ -1,18 +1,17 @@
-﻿namespace AzureFunctions.Extensions.Middleware.Abstractions
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+namespace AzureFunctions.Extensions.Middleware.Abstractions
 {
    /// <summary>
    /// Serverless middleware base class
    /// </summary>
-   public abstract class TaskMiddleware
+   public abstract class HttpMiddlewareBase
    {
       /// <summary>
       /// Get Next instance in middleware pipeline
       /// </summary>
-      public TaskMiddleware Next { get; set; }
-      /// <summary>
-      /// Generic data
-      /// </summary>
-      public object Data { get; set; }
+      public HttpMiddlewareBase Next { get; set; }
       /// <summary>
       /// Get Execution Context
       /// </summary>
@@ -20,21 +19,22 @@
       /// <summary>
       /// ctor
       /// </summary>
-      protected TaskMiddleware()
+      protected HttpMiddlewareBase()
       {
       }
       /// <summary>
       /// ctor
       /// </summary>
       /// <param name="next">Next middleware</param>
-      protected TaskMiddleware(TaskMiddleware next)
+      protected HttpMiddlewareBase(HttpMiddlewareBase next)
       {
          this.Next = next;
       }
       /// <summary>
-      /// Invoke middleware 
-      /// </summary>      
+      /// Invoke middleware
+      /// </summary>
+      /// <param name="context">HttpContext</param>
       /// <returns>Task</returns>
-      public abstract Task InvokeAsync();
+      public abstract Task InvokeAsync(HttpContext context);         
    }
 }

@@ -5,7 +5,7 @@ namespace AzureFunctions.Extensions.Middleware
    /// <summary>
    /// NonHttpMiddleware to execute non-HTTP trigger method
    /// </summary>
-   public class NonHttpMiddleware : TaskMiddleware
+   public class NonHttpMiddleware : NonHttpMiddlewareBase
    {
       private readonly Func<Task> _execute;
 

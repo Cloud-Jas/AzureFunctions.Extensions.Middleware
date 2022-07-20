@@ -9,12 +9,12 @@ namespace AzureFunctions.Extensions.Middleware
    /// <summary>
    /// Functions middleware to execute HTTP trigger method
    /// </summary>
-   public class HttpMiddleware : ServerlessMiddleware
+   public class HttpMiddleware : HttpMiddlewareBase
    {
       private readonly Func<HttpContext, Task<IActionResult>> _execute;
 
       /// <summary>
-      /// Initializes a new instance of the <see cref="ServerlessMiddleware"/> class.
+      /// Initializes a new instance of the <see cref="HttpMiddlewareBase"/> class.
       /// </summary>
       /// <param name="funcContext">The task to be executed.</param>
       public HttpMiddleware(Func<HttpContext, Task<IActionResult>> funcContext, Microsoft.Azure.WebJobs.ExecutionContext executionContext = default)

@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace AzureFunctions.Middleware.Sample.Middlewares
 {
-    public class AuthorizationMiddleware : ServerlessMiddleware
+    public class AuthorizationMiddleware : HttpMiddlewareBase
    {
-        private readonly ILogger _logger;
-        public AuthorizationMiddleware(ILogger logger)
+        private readonly ILogger<AuthorizationMiddleware> _logger;
+        public AuthorizationMiddleware(ILogger<AuthorizationMiddleware> logger)
         {
             _logger = logger;
         }

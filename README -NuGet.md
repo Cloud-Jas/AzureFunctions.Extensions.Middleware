@@ -4,12 +4,15 @@
 * bug-fixes in accessing executionContext
 * cleaner approach to access data for non-http triggers 
 
-
 > Note:  Breaking change of class name changes 
-
 <br>
-
-> FunctionsMiddleware => HttpMiddleware & TaskMiddleware => NonHttpMiddleware
+> FunctionsMiddleware => HttpMiddleware 
+<br>
+> TaskMiddleware => NonHttpMiddleware 
+<br>
+> IMiddlewareBuilder => IHttpMiddlewareBuilder
+<br>
+> ServerlessMiddleware => HttpMiddlewareBase
 
 
 ## Features
@@ -34,6 +37,8 @@
  - NET 5.0
  - NET 6.0
 
+ <p align="right">(<a href="#top">back to top</a>)</p>
+
 ## Installation
 
 ### Install with Package Manager Console
@@ -49,7 +54,7 @@
 
 ## 1.1 Add HttpContextAccessor in Startup.cs
 
-Inorder to access/modify HttpContext within custom middleware we need to add HttpContextAccessor in Startup.cs file
+Inorder to access/modify HttpContext within custom middleware we need to inject HttpContextAccessor to DI in Startup.cs file
 
 ```cs
 
@@ -63,20 +68,14 @@ One or more custom middlewares can be added to the execution pipeline as below.
 
 ```cs
 
-builder.Services.AddTransient<IMiddlewareBuilder, MiddlewareBuilder>((serviceProvider) =>
-            {
-				// added httpcontextaccessor and executioncontext to middlewarebuilder
-                var funcBuilder = new MiddlewareBuilder(serviceProvider.GetRequiredService<IHttpContextAccessor>());
-				
-				//add custom middlewares to the execution pipeline
-                funcBuilder.Use(new ExceptionHandlingMiddleware(new LoggerFactory().CreateLogger(nameof(ExceptionHandlingMiddleware))));
-				
-				// add custom middleware based on condition (works in HTTP trigger)
-                funcBuilder.UseWhen(ctx => ctx.Request.Path.StartsWithSegments("/api/Authorize"),
-                    new AuthorizationMiddleware(new LoggerFactory().CreateLogger(nameof(AuthorizationMiddleware))));
-                
-				return funcBuilder;
-            });
+builder.Services.AddTransient<IHttpMiddlewareBuilder, HttpMiddlewareBuilder>((serviceProvider) =>
+         {
+            var funcBuilder = new HttpMiddlewareBuilder(serviceProvider.GetRequiredService<IHttpContextAccessor>());
+            funcBuilder.Use(new ExceptionHandlingMiddleware(serviceProvider.GetService<ILogger<ExceptionHandlingMiddleware>>()));
+            funcBuilder.UseWhen(ctx => ctx != null && ctx.Request.Path.StartsWithSegments("/api/Authorize"),
+                   new AuthorizationMiddleware(serviceProvider.GetService<ILogger<AuthorizationMiddleware>>()));
+            return funcBuilder;
+         });
 
 ```
 
@@ -90,16 +89,16 @@ builder.Services.AddTransient<IMiddlewareBuilder, MiddlewareBuilder>((servicePro
  of exectuion.
 
 
-## 1.3. Pass IMiddlewareBuilder in Http trigger class
+## 1.3. Pass IHttpMiddlewareBuilder in Http trigger class
 
-Pass IMiddlewareBuilder dependency to the constructor of Http trigger class
+Pass IHttpMiddlewareBuilder dependency to the constructor of Http trigger class
 
 ```cs 
 
-         private readonly ILogger<FxDefault> _logger;
-        private readonly IMiddlewareBuilder _middlewareBuilder;
+        private readonly ILogger<FxDefault> _logger;
+        private readonly IHttpMiddlewareBuilder _middlewareBuilder;
 
-        public FxDefault(ILogger<FxDefault> log, IMiddlewareBuilder middlewareBuilder)
+        public FxDefault(ILogger<FxDefault> log, IHttpMiddlewareBuilder middlewareBuilder)
         {
             _logger = log;
             _middlewareBuilder = middlewareBuilder;
@@ -117,9 +116,9 @@ All of our custom middlewares are added in the Startup.cs file and now we need t
 public class FxDefault
     {
         private readonly ILogger<FxDefault> _logger;
-        private readonly IMiddlewareBuilder _middlewareBuilder;
+        private readonly IHttpMiddlewareBuilder _middlewareBuilder;
 
-        public FxDefault(ILogger<FxDefault> log, IMiddlewareBuilder middlewareBuilder)
+        public FxDefault(ILogger<FxDefault> log, IHttpMiddlewareBuilder middlewareBuilder)
         {
             _logger = log;
             _middlewareBuilder = middlewareBuilder;
@@ -133,9 +132,9 @@ public class FxDefault
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,ExecutionContext executionContext)
         {
 
-           return await _middlewareBuilder.ExecuteAsync(new HttpMiddleware(async (httpContext) =>
+           return await _middlewareBuilder.ExecuteAsync(new Extensions.Middleware.HttpMiddleware(async (httpContext) =>
             {
-                _logger.LogInformation("C# HTTP trigger default function processed a request.");                
+               _logger.LogInformation("C# HTTP trigger default function processed a request.");                
 
                 string name = httpContext.Request.Query["name"];                
 
@@ -148,7 +147,7 @@ public class FxDefault
                     : $"Hello, {name}. This HTTP triggered default function executed successfully.";
 
                 return new OkObjectResult(responseMessage);
-            },executionContext));            
+            }, executionContext));            
             
         }
     }
@@ -159,7 +158,7 @@ In the above example we have passed executionContext as parameter to HttpMiddlew
 
 ## 1.5 How to define Custom middlewares for http triggers?
 
-All custom middleware of Http triggers should inherit from ServerlessMiddleware and override InvokeAsync method . You will be able to access both HttpContext and ExecutionContext
+All custom middleware of Http triggers should inherit from HttpMiddlewareBase and override InvokeAsync method . You will be able to access both HttpContext and ExecutionContext
 
 > Note
 > You have access to execution context in all the custom middlewares , only if you pass the executionContext as 2nd parameter in the HttpMiddleware wrapper (refer 1.4)
@@ -167,10 +166,10 @@ All custom middleware of Http triggers should inherit from ServerlessMiddleware 
 
 ```cs
 
-    public class ExceptionHandlingMiddleware : ServerlessMiddleware
+    public class ExceptionHandlingMiddleware : HttpMiddlewareBase
     {
-        private readonly ILogger _logger;
-        public ExceptionHandlingMiddleware(ILogger logger)
+        private readonly ILogger<ExceptionHandlingMiddleware> _logger;
+        public ExceptionHandlingMiddleware(ILogger<ExceptionHandlingMiddleware> logger)
         {
             _logger = logger;
         }
@@ -208,11 +207,11 @@ One or more custom middlewares can be added to the execution pipeline as below f
 
 ```cs
 
- builder.Services.AddTransient<ITaskMiddlewareBuilder, TaskMiddlewareBuilder>((serviceProvider) =>
+builder.Services.AddTransient<INonHttpMiddlewareBuilder, NonHttpMiddlewareBuilder>((serviceProvider) =>
          {
-            var funcBuilder = new TaskMiddlewareBuilder();
-            funcBuilder.Use(new TaskExceptionHandlingMiddleware(new LoggerFactory().CreateLogger(nameof(ExceptionHandlingMiddleware))));
-            funcBuilder.Use( new TimerDataAccessMiddleware(new LoggerFactory().CreateLogger(nameof(TimerDataAccessMiddleware))));
+            var funcBuilder = new NonHttpMiddlewareBuilder();
+            funcBuilder.Use(new TaskExceptionHandlingMiddleware(serviceProvider.GetService<ILogger<TaskExceptionHandlingMiddleware>>()));
+            funcBuilder.Use(new TimerDataAccessMiddleware(serviceProvider.GetService<ILogger<TimerDataAccessMiddleware>>()));
             return funcBuilder;
          });
 
@@ -229,16 +228,16 @@ One or more custom middlewares can be added to the execution pipeline as below f
  > However you could use ExecutionContext in each custom middleware to perform similar logic :). Refer the examples given below
 
 
-## 2.2. Pass ITaskMiddlewareBuilder in Non-Http trigger class
+## 2.2. Pass INonHttpMiddlewareBuilder in Non-Http trigger class
 
-Pass ITaskMiddlewareBuilder dependency to the constructor of Non-Http trigger class
+Pass INonHttpMiddlewareBuilder dependency to the constructor of Non-Http trigger class
 
 ```cs 
 
       private readonly ILogger<TimerTrigger> _logger;
-      private readonly ITaskMiddlewareBuilder _middlewareBuilder;
+      private readonly INonHttpMiddlewareBuilder _middlewareBuilder;
 
-      public TimerTrigger(ILogger<TimerTrigger> log, ITaskMiddlewareBuilder middlewareBuilder)
+      public TimerTrigger(ILogger<TimerTrigger> log, INonHttpMiddlewareBuilder middlewareBuilder)
       {
          _logger = log;
          _middlewareBuilder = middlewareBuilder;
@@ -254,12 +253,12 @@ All of our custom middlewares are added in the Startup.cs file and now we need t
 
 ```cs
  
-public class TimerTrigger
+ public class TimerTrigger
    {
       private readonly ILogger<TimerTrigger> _logger;
-      private readonly ITaskMiddlewareBuilder _middlewareBuilder;
+      private readonly INonHttpMiddlewareBuilder _middlewareBuilder;
 
-      public TimerTrigger(ILogger<TimerTrigger> log, ITaskMiddlewareBuilder middlewareBuilder)
+      public TimerTrigger(ILogger<TimerTrigger> log, INonHttpMiddlewareBuilder middlewareBuilder)
       {
          _logger = log;
          _middlewareBuilder = middlewareBuilder;
@@ -270,8 +269,8 @@ public class TimerTrigger
 
          await _middlewareBuilder.ExecuteAsync(new NonHttpMiddleware(async () =>
             {
-               log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
-               await Task.FromResult("test");
+               _logger.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
+               await Task.FromResult(true);
             },context,myTimer));
       }
    }
@@ -290,10 +289,10 @@ All custom middleware of Non-Http triggers should inherit from TaskMiddleware an
 
 ```cs
 
-    public class TimerDataAccessMiddleware : TaskMiddleware
+    public class TimerDataAccessMiddleware : NonHttpMiddlewareBase
    {
-      private readonly ILogger _logger;
-      public TimerDataAccessMiddleware(ILogger logger)
+      private readonly ILogger<TimerDataAccessMiddleware> _logger;
+      public TimerDataAccessMiddleware(ILogger<TimerDataAccessMiddleware> logger)
       {
          _logger = logger;
       }
@@ -318,6 +317,8 @@ All custom middleware of Non-Http triggers should inherit from TaskMiddleware an
    }
 
 ```
+
+
 
 ## Sample
 

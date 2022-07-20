@@ -18,9 +18,9 @@ namespace AzureFunctions.Middleware.Sample
     public class FxDefault
     {
         private readonly ILogger<FxDefault> _logger;
-        private readonly IMiddlewareBuilder _middlewareBuilder;
+        private readonly IHttpMiddlewareBuilder _middlewareBuilder;
 
-        public FxDefault(ILogger<FxDefault> log, IMiddlewareBuilder middlewareBuilder)
+        public FxDefault(ILogger<FxDefault> log, IHttpMiddlewareBuilder middlewareBuilder)
         {
             _logger = log;
             _middlewareBuilder = middlewareBuilder;
@@ -34,9 +34,9 @@ namespace AzureFunctions.Middleware.Sample
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,ExecutionContext executionContext)
         {
 
-           return await _middlewareBuilder.ExecuteAsync(new HttpMiddleware(async (httpContext) =>
+           return await _middlewareBuilder.ExecuteAsync(new Extensions.Middleware.HttpMiddleware(async (httpContext) =>
             {
-                _logger.LogInformation("C# HTTP trigger default function processed a request.");                
+               _logger.LogInformation("C# HTTP trigger default function processed a request.");                
 
                 string name = httpContext.Request.Query["name"];                
 
@@ -49,7 +49,7 @@ namespace AzureFunctions.Middleware.Sample
                     : $"Hello, {name}. This HTTP triggered default function executed successfully.";
 
                 return new OkObjectResult(responseMessage);
-            },executionContext));            
+            }, executionContext));            
             
         }
     }

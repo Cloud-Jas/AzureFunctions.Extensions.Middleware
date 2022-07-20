@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace AzureFunctions.Middleware.Sample.Middlewares
 {
-    public class ExceptionHandlingMiddleware : ServerlessMiddleware
+    public class ExceptionHandlingMiddleware : HttpMiddlewareBase
     {
-        private readonly ILogger _logger;
-        public ExceptionHandlingMiddleware(ILogger logger)
+        private readonly ILogger<ExceptionHandlingMiddleware> _logger;
+        public ExceptionHandlingMiddleware(ILogger<ExceptionHandlingMiddleware> logger)
         {
             _logger = logger;
         }

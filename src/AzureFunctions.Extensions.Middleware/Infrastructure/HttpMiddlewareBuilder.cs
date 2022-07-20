@@ -5,23 +5,23 @@ using Microsoft.AspNetCore.Mvc;
 namespace AzureFunctions.Extensions.Middleware.Infrastructure
 {
 
-   public class MiddlewareBuilder : IMiddlewareBuilder
+   public class HttpMiddlewareBuilder : IHttpMiddlewareBuilder
    {
 #if NET6_0
-        private readonly List<ServerlessMiddleware> _middlewarePipeline = new();
+        private readonly List<Abstractions.HttpMiddlewareBase> _middlewarePipeline = new();
 #else
-      private readonly List<ServerlessMiddleware> _middlewarePipeline = new List<ServerlessMiddleware>();
+      private readonly List<Abstractions.HttpMiddlewareBase> _middlewarePipeline = new List<Abstractions.HttpMiddlewareBase>();
 #endif
 
       private readonly IHttpContextAccessor _httpContextAccessor;     
 
-      public MiddlewareBuilder(IHttpContextAccessor httpContextAccessor)
+      public HttpMiddlewareBuilder(IHttpContextAccessor httpContextAccessor)
       {
          _httpContextAccessor = httpContextAccessor;         
       }
-      public MiddlewareBuilder(List<ServerlessMiddleware> middlewarePipeline)
+      public HttpMiddlewareBuilder(List<Abstractions.HttpMiddlewareBase> middlewarePipeline)
       {
-         _middlewarePipeline = new List<ServerlessMiddleware>();
+         _middlewarePipeline = new List<Abstractions.HttpMiddlewareBase>();
 
          foreach (var serverlessMiddleware in middlewarePipeline)
          {
@@ -29,7 +29,7 @@ namespace AzureFunctions.Extensions.Middleware.Infrastructure
          }
       }
       /// <inheritdoc>/>
-      public async Task<dynamic> ExecuteAsync(ServerlessMiddleware middleware)
+      public async Task<dynamic> ExecuteAsync(Abstractions.HttpMiddlewareBase middleware)
       {
 
          Use(middleware);
@@ -52,7 +52,7 @@ namespace AzureFunctions.Extensions.Middleware.Infrastructure
          throw new Exception("No middleware configured");
       }
       /// <inheritdoc>/>
-      public IMiddlewareBuilder Use(ServerlessMiddleware middleware)
+      public IHttpMiddlewareBuilder Use(Abstractions.HttpMiddlewareBase middleware)
       {
          if (_middlewarePipeline is null) throw new Exception("Middleware pipeline is not registerd");
 
@@ -66,7 +66,7 @@ namespace AzureFunctions.Extensions.Middleware.Infrastructure
          return this;
       }
       /// <inheritdoc>/>
-      public IMiddlewareBuilder UseWhen(Func<HttpContext, bool> condition, ServerlessMiddleware middleware)
+      public IHttpMiddlewareBuilder UseWhen(Func<HttpContext, bool> condition, Abstractions.HttpMiddlewareBase middleware)
       {
          var context = this._httpContextAccessor.HttpContext;
 

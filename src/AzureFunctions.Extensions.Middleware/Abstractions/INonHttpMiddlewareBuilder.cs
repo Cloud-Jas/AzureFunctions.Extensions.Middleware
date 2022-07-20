@@ -3,19 +3,19 @@
    /// <summary>
    /// Creates NonHttp Middleware pipeline
    /// </summary>
-   public interface ITaskMiddlewareBuilder
+   public interface INonHttpMiddlewareBuilder
    {
       /// <summary>
       /// Adds middleware to the pipeline
       /// </summary>
       /// <param name="middleware">ServerlessMiddleware</param>
       /// <returns>IMiddlewareBuilder</returns>
-      ITaskMiddlewareBuilder Use(TaskMiddleware middleware);      
+      INonHttpMiddlewareBuilder Use(NonHttpMiddlewareBase middleware);      
       /// <summary>
       /// Executes pipeline
       /// </summary>        
       /// <param name="middleware">ServerlessMiddleware</param>
       /// <returns>dynamic task</returns>
-      Task ExecuteAsync(TaskMiddleware middleware);
+      Task ExecuteAsync(NonHttpMiddlewareBase middleware);
    }
 }

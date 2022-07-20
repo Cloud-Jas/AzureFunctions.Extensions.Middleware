@@ -14,21 +14,21 @@ namespace AzureFunctions.Middleware.Sample
    {
       public override void Configure(IFunctionsHostBuilder builder)
       {
-         builder.Services.AddHttpContextAccessor();         
-         builder.Services.AddLogging();
-         builder.Services.AddTransient<IMiddlewareBuilder, MiddlewareBuilder>((serviceProvider) =>
+         builder.Services.AddHttpContextAccessor();
+         builder.Services.AddLogging();         
+         builder.Services.AddTransient<IHttpMiddlewareBuilder, HttpMiddlewareBuilder>((serviceProvider) =>
          {
-            var funcBuilder = new MiddlewareBuilder(serviceProvider.GetRequiredService<IHttpContextAccessor>());
-            funcBuilder.Use(new ExceptionHandlingMiddleware(new LoggerFactory().CreateLogger(nameof(ExceptionHandlingMiddleware))));
+            var funcBuilder = new HttpMiddlewareBuilder(serviceProvider.GetRequiredService<IHttpContextAccessor>());
+            funcBuilder.Use(new ExceptionHandlingMiddleware(serviceProvider.GetService<ILogger<ExceptionHandlingMiddleware>>()));
             funcBuilder.UseWhen(ctx => ctx != null && ctx.Request.Path.StartsWithSegments("/api/Authorize"),
-                   new AuthorizationMiddleware(new LoggerFactory().CreateLogger(nameof(AuthorizationMiddleware))));
+                   new AuthorizationMiddleware(serviceProvider.GetService<ILogger<AuthorizationMiddleware>>()));
             return funcBuilder;
          });
-         builder.Services.AddTransient<ITaskMiddlewareBuilder, TaskMiddlewareBuilder>((serviceProvider) =>
+         builder.Services.AddTransient<INonHttpMiddlewareBuilder, NonHttpMiddlewareBuilder>((serviceProvider) =>
          {
-            var funcBuilder = new TaskMiddlewareBuilder();
-            funcBuilder.Use(new TaskExceptionHandlingMiddleware(new LoggerFactory().CreateLogger(nameof(ExceptionHandlingMiddleware))));
-            funcBuilder.Use( new TimerDataAccessMiddleware(new LoggerFactory().CreateLogger(nameof(TimerDataAccessMiddleware))));
+            var funcBuilder = new NonHttpMiddlewareBuilder();
+            funcBuilder.Use(new TaskExceptionHandlingMiddleware(serviceProvider.GetService<ILogger<TaskExceptionHandlingMiddleware>>()));
+            funcBuilder.Use(new TimerDataAccessMiddleware(serviceProvider.GetService<ILogger<TimerDataAccessMiddleware>>()));
             return funcBuilder;
          });
       }

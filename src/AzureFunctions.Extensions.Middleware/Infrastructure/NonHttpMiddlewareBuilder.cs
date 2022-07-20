@@ -5,20 +5,20 @@ using Microsoft.AspNetCore.Mvc;
 namespace AzureFunctions.Extensions.Middleware.Infrastructure
 {
 
-   public class TaskMiddlewareBuilder : ITaskMiddlewareBuilder
+   public class NonHttpMiddlewareBuilder : INonHttpMiddlewareBuilder
    {
 #if NET6_0
-        private readonly List<TaskMiddleware> _middlewarePipeline = new();
+        private readonly List<NonHttpMiddlewareBase> _middlewarePipeline = new();
 #else
-      private readonly List<TaskMiddleware> _middlewarePipeline = new List<TaskMiddleware>();
+      private readonly List<NonHttpMiddlewareBase> _middlewarePipeline = new List<NonHttpMiddlewareBase>();
 #endif            
 
-      public TaskMiddlewareBuilder()
+      public NonHttpMiddlewareBuilder()
       {         
       }
-      public TaskMiddlewareBuilder(List<TaskMiddleware> middlewarePipeline)
+      public NonHttpMiddlewareBuilder(List<NonHttpMiddlewareBase> middlewarePipeline)
       {
-         _middlewarePipeline = new List<TaskMiddleware>();
+         _middlewarePipeline = new List<NonHttpMiddlewareBase>();
 
          foreach (var serverlessMiddleware in middlewarePipeline)
          {
@@ -26,7 +26,7 @@ namespace AzureFunctions.Extensions.Middleware.Infrastructure
          }
       }
       /// <inheritdoc>/>
-      public async Task ExecuteAsync(TaskMiddleware middleware)
+      public async Task ExecuteAsync(NonHttpMiddlewareBase middleware)
       {
 
          Use(middleware);         
@@ -43,7 +43,7 @@ namespace AzureFunctions.Extensions.Middleware.Infrastructure
          }         
       }
       /// <inheritdoc>/>
-      public ITaskMiddlewareBuilder Use(TaskMiddleware middleware)
+      public INonHttpMiddlewareBuilder Use(NonHttpMiddlewareBase middleware)
       {         
 
          if (_middlewarePipeline is null) throw new Exception("Middleware pipeline is not registerd");

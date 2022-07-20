@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace AzureFunctions.Middleware.Sample.Middlewares
 {
-   public class TimerDataAccessMiddleware : TaskMiddleware
+   public class TimerDataAccessMiddleware : NonHttpMiddlewareBase
    {
-      private readonly ILogger _logger;
-      public TimerDataAccessMiddleware(ILogger logger)
+      private readonly ILogger<TimerDataAccessMiddleware> _logger;
+      public TimerDataAccessMiddleware(ILogger<TimerDataAccessMiddleware> logger)
       {
          _logger = logger;
       }
