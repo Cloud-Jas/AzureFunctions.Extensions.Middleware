@@ -64,7 +64,7 @@
 
  * Able to add multiple custom middlewares to the pipeline
  * Able to access HTTP context inside the custom middleware
- * Able to access ExecutionContext inside non-http triggers
+ * Able to access ExecutionContext & data inside non-http triggers
  * Able to inject middlewares in all the triggers available
  * Able to bypass middlewares and return response
  * Handle Crosscutting concerns of the application
@@ -74,6 +74,7 @@
 	* Performance Monitoring
 	* Caching
 	* Security
+	* OpenTelemetry
  * Licenced under MIT - 100% free for personal and commercial use
 
 ## Supported Frameworks
