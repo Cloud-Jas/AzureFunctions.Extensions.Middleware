@@ -54,14 +54,10 @@
 
 
 > Note:  Breaking change of class name changes 
-<br>
-* FunctionsMiddleware => HttpMiddleware 
-<br>
-* TaskMiddleware => NonHttpMiddleware 
-<br>
-* IMiddlewareBuilder => IHttpMiddlewareBuilder
-<br>
-* ServerlessMiddleware => HttpMiddlewareBase
+> * FunctionsMiddleware => HttpMiddleware 
+> * TaskMiddleware => NonHttpMiddleware 
+> * IMiddlewareBuilder => IHttpMiddlewareBuilder
+> * ServerlessMiddleware => HttpMiddlewareBase
 
 
 ## Features
