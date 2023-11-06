@@ -19,7 +19,7 @@ namespace AzureFunctions.Middleware.Sample
          _middlewareBuilder = middlewareBuilder;
       }
       [FunctionName("TimerTrigger")]
-      public async Task Run([TimerTrigger("*/10 * * * * *")] TimerInfo myTimer, ILogger log,ExecutionContext context)
+      public async Task Run([TimerTrigger("*/60 * * * * *")] TimerInfo myTimer, ILogger log,ExecutionContext context)
       {
 
          await _middlewareBuilder.ExecuteAsync(new NonHttpMiddleware(async () =>
