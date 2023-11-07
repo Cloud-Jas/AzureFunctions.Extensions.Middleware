@@ -35,6 +35,7 @@ namespace AzureFunctions.Middleware.Sample.Middlewares
 
                         if (this.ExecutionContext.FunctionName.Equals("FxServiceBusTrigger")) // consider this is the disabled function
                         {
+                            long sequenceNumber = serviceBusData.Message.SequenceNumber; // add sequenceNumber to cache for later retrieval of deferred messages
                             await serviceBusData.MessageActions.DeferMessageAsync(serviceBusData.Message);
                         }
                         else
