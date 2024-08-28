@@ -26,7 +26,12 @@ jobs:
     - name: Setup .NET SDK 6 LTS
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '6.x'          
+        dotnet-version: '6.x'      
+
+    - name: Setup .NET SDK 8 LTS
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '8.x'        
         
     - name: Build AzureFunctions.Extensions.Middleware
       run: dotnet build --configuration Release -p:Version=${{ github.event.release.tag_name }}
