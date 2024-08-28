@@ -105,10 +105,7 @@ builder.Services.AddHttpContextAccessor()
 
 ### Isolated Mode
 
-Along with HttpContextAccessor we need to add FunctionContextAccessor to DI in Startup.cs file , For this you need to install Functions.Worker.ContextAccessor package that will provide FunctionContextAccessor to DI.
-
-
-`PM> Install-Package Functions.Worker.ContextAccessor -Version 2.0.0`
+We need to add FunctionContextAccessor to DI in Startup.cs file. Based on https://gist.github.com/dolphinspired/796d26ebe1237b78ee04a3bff0620ea0 FunctionContextAccessor is implemented to access the FunctionContext in Isolated Process mode. 
 
 ```cs
 
@@ -119,7 +116,6 @@ new HostBuilder()
     })
     .ConfigureServices(services =>
     {
-services.AddHttpContextAccessor()
 services.AddFunctionContextAccessor();
 }
 

@@ -1,5 +1,4 @@
 ﻿using AzureFunctions.Extensions.Middleware.Abstractions;
-using Functions.Worker.ContextAccessor;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Functions.Worker;
 using System;
