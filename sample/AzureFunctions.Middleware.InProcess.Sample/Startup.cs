@@ -4,13 +4,13 @@ using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using AzureFunctions.Middleware.Sample.Middlewares;
+using AzureFunctions.Middleware.InProcess.Sample.Middlewares;
 using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Configuration;
 
-[assembly: FunctionsStartup(typeof(AzureFunctions.Middleware.Sample.Startup))]
+[assembly: FunctionsStartup(typeof(AzureFunctions.Middleware.InProcess.Sample.Startup))]
 
-namespace AzureFunctions.Middleware.Sample
+namespace AzureFunctions.Middleware.InProcess.Sample
 {
     internal class Startup : FunctionsStartup
     {

@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
-namespace AzureFunctions.Middleware.Sample.Middlewares
+namespace AzureFunctions.Middleware.InProcess.Sample.Middlewares
 {
     public class ServiceBusMiddleware : NonHttpMiddlewareBase
     {

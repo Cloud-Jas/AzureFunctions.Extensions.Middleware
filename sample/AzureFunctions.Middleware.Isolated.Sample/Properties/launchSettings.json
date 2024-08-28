@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "AzureFunctions.MiddlewareV8.Sample": {
+    "AzureFunctions.Middleware.Isolated.Sample": {
       "commandName": "Project",
       "commandLineArgs": "--port 7148"
     },

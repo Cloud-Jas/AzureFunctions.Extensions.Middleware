@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 
-namespace AzureFunctions.Middleware.Sample
+namespace AzureFunctions.Middleware.InProcess.Sample
 {
     public class FxAuthorize
     {

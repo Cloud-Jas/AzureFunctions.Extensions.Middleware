@@ -2,11 +2,11 @@ using System;
 using System.Threading.Tasks;
 using AzureFunctions.Extensions.Middleware;
 using AzureFunctions.Extensions.Middleware.Abstractions;
-using AzureFunctions.Middleware.Sample.Middlewares;
+using AzureFunctions.Middleware.InProcess.Sample.Middlewares;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 
-namespace AzureFunctions.Middleware.Sample
+namespace AzureFunctions.Middleware.InProcess.Sample
 {
    public class TimerTrigger
    {

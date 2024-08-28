@@ -1,8 +1,12 @@
 ﻿using AzureFunctions.Extensions.Middleware.Abstractions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
 
-namespace AzureFunctions.MiddlewareV8.Sample.Middlewares
+namespace AzureFunctions.Middleware.InProcess.Sample.Middlewares
 {
     public class AuthorizationMiddleware : HttpMiddlewareBase
    {
@@ -13,7 +17,7 @@ namespace AzureFunctions.MiddlewareV8.Sample.Middlewares
         }
         public override async Task InvokeAsync(HttpContext context)
         {
-            _logger.LogInformation($"{this.FunctionExecutionContext.FunctionDefinition.Name} Authorization middleware triggered");
+            _logger.LogInformation($"{this.ExecutionContext.FunctionName} Authorization middleware triggered");
 
             if (!context.Request.Headers.ContainsKey("Authorization"))
             {

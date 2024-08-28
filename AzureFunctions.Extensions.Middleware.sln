@@ -5,9 +5,14 @@ VisualStudioVersion = 17.0.31919.166
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzureFunctions.Extensions.Middleware", "src\AzureFunctions.Extensions.Middleware\AzureFunctions.Extensions.Middleware.csproj", "{1AB7FDA2-9EEA-42DF-9369-75E864FB4B80}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzureFunctions.Middleware-InProcess.Sample", "sample\AzureFunctions.Middleware-InProcess.Sample\AzureFunctions.Middleware-InProcess.Sample.csproj", "{FF06D7DB-074C-4859-83B8-273A1EC1CF69}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzureFunctions.Middleware.InProcess.Sample", "sample\AzureFunctions.Middleware.InProcess.Sample\AzureFunctions.Middleware.InProcess.Sample.csproj", "{FF06D7DB-074C-4859-83B8-273A1EC1CF69}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzureFunctions.Middleware-Isolated.Sample", "sample\AzureFunctions.Middleware-Isolated.Sample\AzureFunctions.Middleware-Isolated.Sample.csproj", "{BECBF1BC-0E36-405D-B537-2EA35280140D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzureFunctions.Middleware.Isolated.Sample", "sample\AzureFunctions.Middleware.Isolated.Sample\AzureFunctions.Middleware.Isolated.Sample.csproj", "{BECBF1BC-0E36-405D-B537-2EA35280140D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{843BF6FB-DEE3-42CF-92A7-B152C53501A1}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

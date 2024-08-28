@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
-namespace AzureFunctions.MiddlewareV8.Sample.Middlewares
+namespace AzureFunctions.Middleware.InProcess.Sample.Middlewares
 {
     public class ExceptionHandlingMiddleware : HttpMiddlewareBase
     {
@@ -18,11 +18,11 @@ namespace AzureFunctions.MiddlewareV8.Sample.Middlewares
         {
             try
             {
-                _logger.LogInformation($"{this.FunctionExecutionContext.FunctionDefinition.Name} Request triggered");
+                _logger.LogInformation($"{this.ExecutionContext.FunctionName} Request triggered");
 
                 await this.Next.InvokeAsync(context);
 
-                _logger.LogInformation($"{this.FunctionExecutionContext.FunctionDefinition.Name} Request processed without any exceptions");
+                _logger.LogInformation($"{this.ExecutionContext.FunctionName} Request processed without any exceptions");
             }
             catch (Exception ex)
             {
@@ -30,7 +30,7 @@ namespace AzureFunctions.MiddlewareV8.Sample.Middlewares
 
                 context.Response.StatusCode = 400;
                 
-                await context.Response.WriteAsync($"{this.FunctionExecutionContext.FunctionDefinition.Name} request failed, Please try again");
+                await context.Response.WriteAsync($"{this.ExecutionContext.FunctionName} request failed, Please try again");
 
             }
         }

@@ -7,7 +7,7 @@ using System;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
-namespace AzureFunctions.Middleware.Sample.Middlewares
+namespace AzureFunctions.Middleware.InProcess.Sample.Middlewares
 {
     public class TaskExceptionHandlingMiddleware : NonHttpMiddlewareBase
     {

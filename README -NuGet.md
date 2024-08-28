@@ -15,6 +15,8 @@
 ## Features
 
  * Able to add multiple custom middlewares to the pipeline
+ * Unified middleware support for both HTTP and non-HTTP triggers in Azure Functions 
+ * Unified middleware support for both In-Process and Isolated Process in Azure Functions
  * Able to access HTTP context inside the custom middleware
  * Able to access ExecutionContext & data inside non-http triggers
  * Able to inject middlewares in all the triggers available
@@ -34,6 +36,7 @@
  - NetCoreApp 3.1
  - NET 5.0
  - NET 6.0
+ - NET 8.0
 
  <p align="right">(<a href="#top">back to top</a>)</p>
 

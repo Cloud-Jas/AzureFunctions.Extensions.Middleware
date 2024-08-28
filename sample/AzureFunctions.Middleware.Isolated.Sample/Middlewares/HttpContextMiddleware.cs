@@ -2,7 +2,7 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Middleware;
 
-namespace AzureFunctions.MiddlewareV8.Sample.Middlewares
+namespace AzureFunctions.Middleware.Isolated.Sample.Middlewares
 {
    public class HttpContextAccessorMiddleware(IHttpContextAccessor httpContextAccessor) : IFunctionsWorkerMiddleware
    {

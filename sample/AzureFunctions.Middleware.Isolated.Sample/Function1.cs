@@ -6,7 +6,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace AzureFunctions.MiddlewareV8.Sample
+namespace AzureFunctions.Middleware.Isolated.Sample
 {
     public class Function1
     {

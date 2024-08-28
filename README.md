@@ -46,19 +46,10 @@
   </ol>
 </details>
 
-## Updates 3.0
+## Updates 4.0, What's new?
 
-* Separated concerns of Http and non-http triggers
-* bug-fixes in accessing executionContext
-* cleaner approach to access data for non-http triggers 
-
-
-> Note:  Breaking change of class name changes 
-> * FunctionsMiddleware => HttpMiddleware 
-> * TaskMiddleware => NonHttpMiddleware 
-> * IMiddlewareBuilder => IHttpMiddlewareBuilder
-> * ServerlessMiddleware => HttpMiddlewareBase
-
+* Unified Middleware for both HTTP and Non-HTTP triggers in In-process & Isolated process mode in Azure Functions
+* Added support for .NET 8.0 Isolated Process
 
 ## Features
 
@@ -82,6 +73,7 @@
  - NetCoreApp 3.1
  - NET 5.0
  - NET 6.0
+ - NET 8.0 (Isolated Process)
 
  <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -369,7 +361,7 @@ All custom middleware of Non-Http triggers should inherit from TaskMiddleware an
 
 ## Sample
 
-You can find .NET 6 sample application [here](sample) . In this example we have registered Exception handling custom middleware to the exectuion order that
+You can find In-Process and Isolated sample application [here](sample) . In this example we have registered Exception handling custom middleware to the exectuion order that
 will handle any unhandled exceptions in the Http Trigger execution.
 
 

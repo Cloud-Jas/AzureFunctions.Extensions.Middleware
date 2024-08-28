@@ -1,6 +1,6 @@
 using AzureFunctions.Extensions.Middleware.Abstractions;
 using AzureFunctions.Extensions.Middleware.Infrastructure;
-using AzureFunctions.MiddlewareV8.Sample.Middlewares;
+using AzureFunctions.Middleware.Isolated.Sample.Middlewares;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.DependencyInjection;
