@@ -1,4 +1,5 @@
 ﻿using AzureFunctions.Extensions.Middleware.Abstractions;
+using Functions.Worker.ContextAccessor;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Functions.Worker;
 using System;
@@ -17,10 +18,16 @@ namespace AzureFunctions.Extensions.Middleware.Infrastructure
 #endif
 
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private IFunctionContextAccessor FunctionContextAccessor { get; }
 
         public HttpMiddlewareBuilder(IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+        }
+        public HttpMiddlewareBuilder(IHttpContextAccessor httpContextAccessor, IFunctionContextAccessor functionContextAccessor)
+        {
+            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+            FunctionContextAccessor = functionContextAccessor ?? throw new ArgumentNullException(nameof(functionContextAccessor));
         }
 
         public HttpMiddlewareBuilder(List<HttpMiddlewareBase> middlewarePipeline)
@@ -54,7 +61,7 @@ namespace AzureFunctions.Extensions.Middleware.Infrastructure
                 {
                     pipeMiddleware.FunctionExecutionContext = middleware.FunctionExecutionContext;
 #if NET8_0
-               _httpContextAccessor.HttpContext = middleware.FunctionExecutionContext.GetHttpContext();
+                    _httpContextAccessor.HttpContext = middleware.FunctionExecutionContext.GetHttpContext();
 #endif
                 }
             }
@@ -109,6 +116,10 @@ namespace AzureFunctions.Extensions.Middleware.Infrastructure
 
             if (middleware == null)
                 throw new ArgumentNullException(nameof(middleware));
+
+#if NET8_0
+            _httpContextAccessor.HttpContext = FunctionContextAccessor.FunctionContext.GetHttpContext();
+#endif
 
             var context = _httpContextAccessor.HttpContext;
 
