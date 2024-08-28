@@ -24,9 +24,8 @@ namespace AzureFunctions.Extensions.Middleware.Infrastructure
         {
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
-        public HttpMiddlewareBuilder(IHttpContextAccessor httpContextAccessor, IFunctionContextAccessor functionContextAccessor)
+        public HttpMiddlewareBuilder(IFunctionContextAccessor functionContextAccessor)
         {
-            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             FunctionContextAccessor = functionContextAccessor ?? throw new ArgumentNullException(nameof(functionContextAccessor));
         }
 
@@ -45,6 +44,8 @@ namespace AzureFunctions.Extensions.Middleware.Infrastructure
         /// <returns>The result of the middleware execution.</returns>
         public async Task<dynamic> ExecuteAsync(HttpMiddlewareBase middleware)
         {
+            HttpContext httpContext = null;
+
             if (middleware == null)
                 throw new ArgumentNullException(nameof(middleware));
 
@@ -56,28 +57,27 @@ namespace AzureFunctions.Extensions.Middleware.Infrastructure
                 if (middleware.ExecutionContext != null)
                 {
                     pipeMiddleware.ExecutionContext = middleware.ExecutionContext;
+                    httpContext = _httpContextAccessor.HttpContext;
                 }
                 else if (middleware.FunctionExecutionContext != null)
                 {
                     pipeMiddleware.FunctionExecutionContext = middleware.FunctionExecutionContext;
 #if NET8_0
-                    _httpContextAccessor.HttpContext = middleware.FunctionExecutionContext.GetHttpContext();
+                    httpContext = middleware.FunctionExecutionContext.GetHttpContext();
 #endif
                 }
             }
 
-            var context = _httpContextAccessor.HttpContext;
-
-            if (context == null)
+            if (httpContext == null)
                 throw new InvalidOperationException("HttpContext is not available.");
 
             if (_middlewarePipeline.Any())
             {
                 // Start executing the middleware pipeline
-                await _middlewarePipeline.First().InvokeAsync(context);
+                await _middlewarePipeline.First().InvokeAsync(httpContext);
 
                 // Return the middleware response if available
-                return context.Response != null ? new MiddlewareResponse(context) : null;
+                return httpContext.Response != null ? new MiddlewareResponse(httpContext) : null;
             }
 
             throw new InvalidOperationException("No middleware configured.");
@@ -111,6 +111,7 @@ namespace AzureFunctions.Extensions.Middleware.Infrastructure
         /// <returns>The current instance of <see cref="HttpMiddlewareBuilder"/>.</returns>
         public IHttpMiddlewareBuilder UseWhen(Func<HttpContext, bool> condition, HttpMiddlewareBase middleware)
         {
+            HttpContext context = null;
             if (condition == null)
                 throw new ArgumentNullException(nameof(condition));
 
@@ -118,10 +119,11 @@ namespace AzureFunctions.Extensions.Middleware.Infrastructure
                 throw new ArgumentNullException(nameof(middleware));
 
 #if NET8_0
-            _httpContextAccessor.HttpContext = FunctionContextAccessor.FunctionContext.GetHttpContext();
-#endif
-
-            var context = _httpContextAccessor.HttpContext;
+            if (FunctionContextAccessor != null && FunctionContextAccessor.FunctionContext != null)
+                context = FunctionContextAccessor.FunctionContext.GetHttpContext();
+#endif            
+            if (context == null)
+                context = _httpContextAccessor.HttpContext;
 
             if (context != null && condition(context))
             {

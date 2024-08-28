@@ -23,7 +23,7 @@ var host = new HostBuilder()
         services.AddFunctionContextAccessor();
         services.AddTransient<IHttpMiddlewareBuilder, HttpMiddlewareBuilder>((serviceProvider) =>
         {
-            var funcBuilder = new HttpMiddlewareBuilder(serviceProvider.GetRequiredService<IHttpContextAccessor>(), serviceProvider.GetRequiredService<IFunctionContextAccessor>());
+            var funcBuilder = new HttpMiddlewareBuilder(serviceProvider.GetRequiredService<IFunctionContextAccessor>());
             funcBuilder.Use(new ExceptionHandlingMiddleware(serviceProvider.GetService<ILogger<ExceptionHandlingMiddleware>>()));
             funcBuilder.UseWhen(ctx =>
             {

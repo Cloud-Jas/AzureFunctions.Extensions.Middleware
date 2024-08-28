@@ -94,16 +94,45 @@
 
 Inorder to access/modify HttpContext within custom middleware we need to inject HttpContextAccessor to DI in Startup.cs file
 
+
+### In-Process Mode
+
 ```cs
 
 builder.Services.AddHttpContextAccessor()
 
 ```
 
+### Isolated Mode
+
+Along with HttpContextAccessor we need to add FunctionContextAccessor to DI in Startup.cs file , For this you need to install Functions.Worker.ContextAccessor package that will provide FunctionContextAccessor to DI.
+
+
+`PM> Install-Package Functions.Worker.ContextAccessor -Version 2.0.0`
+
+```cs
+
+new HostBuilder()
+    .ConfigureFunctionsWebApplication(applicationBuilder =>
+    {
+        applicationBuilder.UseFunctionContextAccessor();        
+    })
+    .ConfigureServices(services =>
+    {
+services.AddHttpContextAccessor()
+services.AddFunctionContextAccessor();
+}
+
+```
+
+
+
 ## 1.2. Add custom middlewares to the pipeline in Startup.cs
 
 One or more custom middlewares can be added to the execution pipeline as below.
 
+
+### In-Process Mode
 ```cs
 
 builder.Services.AddTransient<IHttpMiddlewareBuilder, HttpMiddlewareBuilder>((serviceProvider) =>
@@ -115,6 +144,26 @@ builder.Services.AddTransient<IHttpMiddlewareBuilder, HttpMiddlewareBuilder>((se
             return funcBuilder;
          });
 
+```
+
+### Isolated Mode
+
+```cs
+services.AddTransient<IHttpMiddlewareBuilder, HttpMiddlewareBuilder>((serviceProvider) =>
+        {
+            var funcBuilder = new HttpMiddlewareBuilder(serviceProvider.GetRequiredService<IFunctionContextAccessor>());
+            funcBuilder.Use(new ExceptionHandlingMiddleware(serviceProvider.GetService<ILogger<ExceptionHandlingMiddleware>>()));
+            funcBuilder.UseWhen(ctx =>
+            {
+                if (ctx != null && ctx.Request.Path.StartsWithSegments("/api/Authorize"))
+                {
+                    return true;
+                }
+                return false;
+            }, new AuthorizationMiddleware(serviceProvider.GetService<ILogger<AuthorizationMiddleware>>()));
+            return funcBuilder;
+        });
+    })
 ```
 
 ### 1.2.1 Use() 
