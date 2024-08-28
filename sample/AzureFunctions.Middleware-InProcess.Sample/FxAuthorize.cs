@@ -15,28 +15,28 @@ using Newtonsoft.Json;
 
 namespace AzureFunctions.Middleware.Sample
 {
-    public class FxDefault
+    public class FxAuthorize
     {
-        private readonly ILogger<FxDefault> _logger;
+        private readonly ILogger<FxAuthorize> _logger;
         private readonly IHttpMiddlewareBuilder _middlewareBuilder;
 
-        public FxDefault(ILogger<FxDefault> log, IHttpMiddlewareBuilder middlewareBuilder)
+        public FxAuthorize(ILogger<FxAuthorize> log, IHttpMiddlewareBuilder middlewareBuilder)
         {
             _logger = log;
             _middlewareBuilder = middlewareBuilder;
         }
 
-        [FunctionName("Function1")]
-        [OpenApiOperation(operationId: "Run", tags: new[] { "name" })]
+        [FunctionName("Authorize")]
+        [OpenApiOperation(operationId: "Authorize", tags: new[] { "name" })]
         [OpenApiParameter(name: "name", In = ParameterLocation.Query, Required = true, Type = typeof(string), Description = "The **Name** parameter")]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(string), Description = "The OK response")]
-        public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,ExecutionContext executionContext)
+        public async Task<IActionResult> Authorize(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "Authorize")] HttpRequest req,ExecutionContext executionContext)
         {
 
-           return await _middlewareBuilder.ExecuteAsync(new Extensions.Middleware.HttpMiddleware(async (httpContext) =>
+            return await _middlewareBuilder.ExecuteAsync(new HttpMiddleware(async (httpContext) =>
             {
-               _logger.LogInformation("C# HTTP trigger default function processed a request.");                
+               _logger.LogInformation("C# HTTP trigger authorize function processed a request.");
 
                 string name = httpContext.Request.Query["name"];                
 
@@ -45,13 +45,13 @@ namespace AzureFunctions.Middleware.Sample
                 name = name ?? data?.name;
 
                 string responseMessage = string.IsNullOrEmpty(name)
-                    ? "This HTTP triggered default function executed successfully. Pass a name in the query string or in the request body for a personalized response."
-                    : $"Hello, {name}. This HTTP triggered default function executed successfully.";
+                    ? "This HTTP triggered authorize function executed successfully. Pass a name in the query string or in the request body for a personalized response."
+                    : $"Hello, {name}. This HTTP triggered authorize function executed successfully.";
 
                 return new OkObjectResult(responseMessage);
             }, executionContext));            
             
-        }
+        }        
     }
 }
 

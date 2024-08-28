@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
+		<TargetFrameworks>netcoreapp3.1;net5.0;net6.0;net8.0</TargetFrameworks>
 		<LangVersion>10.0</LangVersion>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
@@ -23,6 +23,12 @@
 		<NeutralLanguage>en</NeutralLanguage>
 	</PropertyGroup>
 
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
+		<PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.20.1" />
+		<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.1.0" />
+		<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="1.2.0" />
+	</ItemGroup>
+	
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
@@ -53,6 +59,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <PackageReference Include="Microsoft.Azure.Functions.Worker.Core" Version="1.19.0" />
 	  <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.33" />
 	</ItemGroup>
 

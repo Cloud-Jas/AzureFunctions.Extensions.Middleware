@@ -3,36 +3,64 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Azure.Functions.Worker;
 
 namespace AzureFunctions.Extensions.Middleware
 {
    /// <summary>
-   /// Functions middleware to execute HTTP trigger method
+   /// Middleware for executing a function with HttpContext and returning an IActionResult.
    /// </summary>
    public class HttpMiddleware : HttpMiddlewareBase
    {
       private readonly Func<HttpContext, Task<IActionResult>> _execute;
 
       /// <summary>
-      /// Initializes a new instance of the <see cref="HttpMiddlewareBase"/> class.
+      /// Initializes a new instance of the <see cref="HttpMiddleware"/> class.
       /// </summary>
-      /// <param name="funcContext">The task to be executed.</param>
-      public HttpMiddleware(Func<HttpContext, Task<IActionResult>> funcContext, Microsoft.Azure.WebJobs.ExecutionContext executionContext = default)
+      /// <param name="execute">The function to be executed.</param>
+      /// <param name="executionContext">The unified execution context.</param>
+      public HttpMiddleware(Func<HttpContext, Task<IActionResult>> execute, Microsoft.Azure.WebJobs.ExecutionContext executionContext)
       {
-         _execute = funcContext;
+         _execute = execute ?? throw new ArgumentNullException(nameof(execute));
          base.ExecutionContext = executionContext;
       }
 
       /// <summary>
-      /// Executes the middleware and creates response from ActionContext
+      /// Initializes a new instance of the <see cref="HttpMiddleware"/> class.
       /// </summary>
-      /// <param name="context">The context.</param>
-      /// <returns>Task</returns>
+      /// <param name="execute">The function to be executed.</param>
+      /// <param name="executionContext">The function execution context.</param>
+      public HttpMiddleware(Func<HttpContext, Task<IActionResult>> execute, FunctionContext executionContext)
+      {
+         _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+         base.FunctionExecutionContext = executionContext;
+      }
+
+      /// <summary>
+      /// Executes the middleware and creates a response from IActionResult.
+      /// </summary>
+      /// <param name="context">The HTTP context.</param>
+      /// <returns>A task representing the asynchronous operation.</returns>
       public override async Task InvokeAsync(HttpContext context)
       {
-         var result = await _execute(context);
+         if (context == null) throw new ArgumentNullException(nameof(context));
 
-         await result.ExecuteResultAsync(new ActionContext(context, new RouteData(), new ActionDescriptor()));
+         // Execute the provided function to get an IActionResult
+         IActionResult result = await _execute(context);
+
+         // Ensure that result is not null before attempting to execute it
+         if (result == null)
+            throw new InvalidOperationException("The IActionResult cannot be null.");
+
+         // Create a new ActionContext and execute the result
+         var actionContext = new ActionContext
+         {
+            HttpContext = context,
+            RouteData = new RouteData(),
+            ActionDescriptor = new ActionDescriptor()
+         };
+
+         await result.ExecuteResultAsync(actionContext);
       }
    }
 }

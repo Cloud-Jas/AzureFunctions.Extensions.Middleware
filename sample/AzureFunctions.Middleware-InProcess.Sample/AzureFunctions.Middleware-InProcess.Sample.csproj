@@ -8,8 +8,7 @@
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.OpenApi" Version="0.7.2-preview" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.ServiceBus" Version="5.13.3" />
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.0.1" />
-    <PackageReference Include="WindowsAzure.ServiceBus" Version="6.2.2" />
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.0.1" />    
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\AzureFunctions.Extensions.Middleware\AzureFunctions.Extensions.Middleware.csproj" />

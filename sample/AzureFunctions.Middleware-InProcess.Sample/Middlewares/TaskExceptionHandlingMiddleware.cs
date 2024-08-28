@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
-using Microsoft.ServiceBus.Messaging;
 using System;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;

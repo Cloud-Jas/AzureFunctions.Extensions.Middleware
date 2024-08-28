@@ -7,10 +7,10 @@ namespace AzureFunctions.Extensions.Middleware.Infrastructure
 
    public class NonHttpMiddlewareBuilder : INonHttpMiddlewareBuilder
    {
-#if NET6_0
+#if NET8_0 || NET6_0
         private readonly List<NonHttpMiddlewareBase> _middlewarePipeline = new();
 #else
-      private readonly List<NonHttpMiddlewareBase> _middlewarePipeline = new List<NonHttpMiddlewareBase>();
+        private readonly List<NonHttpMiddlewareBase> _middlewarePipeline = new List<NonHttpMiddlewareBase>();
 #endif            
 
       public NonHttpMiddlewareBuilder()
@@ -34,7 +34,10 @@ namespace AzureFunctions.Extensions.Middleware.Infrastructure
          _middlewarePipeline.ForEach(x =>
          {
             x.Data = middleware.Data;
-            x.ExecutionContext = middleware.ExecutionContext;
+             if(middleware.ExecutionContext != null)
+                x.ExecutionContext = middleware.ExecutionContext;
+             else if (middleware.FunctionExecutionContext != null)
+                 x.FunctionExecutionContext = middleware.FunctionExecutionContext;
          });
 
          if (_middlewarePipeline.Any())

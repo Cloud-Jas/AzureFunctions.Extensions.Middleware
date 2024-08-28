@@ -1,0 +1,15 @@
+{
+  "profiles": {
+    "AzureFunctions.MiddlewareV8.Sample": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7148"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "DockerfileRunArguments": "--init",
+      "httpPort": 30114,
+      "useSSL": false
+    }
+  }
+}
