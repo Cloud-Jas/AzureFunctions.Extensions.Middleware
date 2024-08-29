@@ -34,6 +34,12 @@ var host = new HostBuilder()
             }, new AuthorizationMiddleware(serviceProvider.GetService<ILogger<AuthorizationMiddleware>>()));
             return funcBuilder;
         });
+        services.AddTransient<INonHttpMiddlewareBuilder, NonHttpMiddlewareBuilder>((serviceProvider) =>
+        {
+            var funcBuilder = new NonHttpMiddlewareBuilder();           
+            funcBuilder.Use(new TimerDataAccessMiddleware(serviceProvider.GetService<ILogger<TimerDataAccessMiddleware>>()));
+            return funcBuilder;
+        });
     })
     .Build();
 
