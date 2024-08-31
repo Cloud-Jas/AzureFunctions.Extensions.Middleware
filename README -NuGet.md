@@ -6,8 +6,6 @@
 ## Features
 
  * Able to add multiple custom middlewares to the pipeline
- * Unified middleware support for both HTTP and non-HTTP triggers in Azure Functions 
- * Unified middleware support for both In-Process and Isolated Process in Azure Functions
  * Able to access HTTP context inside the custom middleware
  * Able to access ExecutionContext & data inside non-http triggers
  * Able to inject middlewares in all the triggers available
@@ -27,7 +25,7 @@
  - NetCoreApp 3.1
  - NET 5.0
  - NET 6.0
- - NET 8.0
+ - NET 8.0 (Isolated Process)
 
  <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -48,16 +46,41 @@
 
 Inorder to access/modify HttpContext within custom middleware we need to inject HttpContextAccessor to DI in Startup.cs file
 
+
+### In-Process Mode
+
 ```cs
 
 builder.Services.AddHttpContextAccessor()
 
 ```
 
+### Isolated Mode
+
+We need to add FunctionContextAccessor to DI in Startup.cs file. Based on https://gist.github.com/dolphinspired/796d26ebe1237b78ee04a3bff0620ea0 FunctionContextAccessor is implemented to access the FunctionContext in Isolated Process mode. 
+
+```cs
+
+new HostBuilder()
+    .ConfigureFunctionsWebApplication(applicationBuilder =>
+    {
+        applicationBuilder.UseFunctionContextAccessor();        
+    })
+    .ConfigureServices(services =>
+    {
+services.AddFunctionContextAccessor();
+}
+
+```
+
+
+
 ## 1.2. Add custom middlewares to the pipeline in Startup.cs
 
 One or more custom middlewares can be added to the execution pipeline as below.
 
+
+### In-Process Mode
 ```cs
 
 builder.Services.AddTransient<IHttpMiddlewareBuilder, HttpMiddlewareBuilder>((serviceProvider) =>
@@ -69,6 +92,26 @@ builder.Services.AddTransient<IHttpMiddlewareBuilder, HttpMiddlewareBuilder>((se
             return funcBuilder;
          });
 
+```
+
+### Isolated Mode
+
+```cs
+services.AddTransient<IHttpMiddlewareBuilder, HttpMiddlewareBuilder>((serviceProvider) =>
+        {
+            var funcBuilder = new HttpMiddlewareBuilder(serviceProvider.GetRequiredService<IFunctionContextAccessor>());
+            funcBuilder.Use(new ExceptionHandlingMiddleware(serviceProvider.GetService<ILogger<ExceptionHandlingMiddleware>>()));
+            funcBuilder.UseWhen(ctx =>
+            {
+                if (ctx != null && ctx.Request.Path.StartsWithSegments("/api/Authorize"))
+                {
+                    return true;
+                }
+                return false;
+            }, new AuthorizationMiddleware(serviceProvider.GetService<ILogger<AuthorizationMiddleware>>()));
+            return funcBuilder;
+        });
+    })
 ```
 
 ### 1.2.1 Use() 
@@ -310,11 +353,9 @@ All custom middleware of Non-Http triggers should inherit from TaskMiddleware an
 
 ```
 
-
-
 ## Sample
 
-You can find .NET 6 sample application [here](sample) . In this example we have registered Exception handling custom middleware to the exectuion order that
+You can find In-Process and Isolated sample application [here](sample) . In this example we have registered Exception handling custom middleware to the exectuion order that
 will handle any unhandled exceptions in the Http Trigger execution.
 
 
@@ -328,14 +369,11 @@ Thank you to the following people for their support and contributions!
 
 Leave a ⭐ if this library helped you at handling cross-cutting concerns in serverless architecture.
 
-<a href="https://www.buymeacoffee.com/divakarkumar" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 40px !important;width: 145 !important;" ></a>
-
 [Website](//iamdivakarkumar.com) | [LinkedIn](https://www.linkedin.com/in/divakar-kumar/) | [Forum](https://github.com/Cloud-Jas/AzureFunctions.Extensions.Middleware/discussions) | [Contribution Guide](CONTRIBUTING.md) | [Donate](https://www.buymeacoffee.com/divakarkumar) | [License](LICENSE.txt)
 
 &copy; [Divakar Kumar](//github.com/Divakar-Kumar)
 
 For detailed documentation, please visit the [docs](docs/readme.md). 
-
 
 ## Contact
 
