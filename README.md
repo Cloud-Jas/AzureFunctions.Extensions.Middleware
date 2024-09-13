@@ -2,7 +2,7 @@
 <h1 align="center"><a href="https://iamdivakarkumar.com/" target="blank"><img height="240" src="./icons/middleware.png"/><br/>AzureFunctions.Extensions.Middleware</a></h1>
 
 <p align="center">
-  <b>.NET library that allows developers to implement middleware pattern in Azure functions (In-Process Mode) </b>
+  <b>.NET library that allows developers to implement middleware pattern in Azure functions (In-Process & Isolated Mode) </b>
 </p>
 
 <p align="center">  
